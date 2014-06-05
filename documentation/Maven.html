@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>To develop topologies, you’ll need the Storm jars on your classpath. You should either include the unpacked jars in the classpath for your project or use Maven to include Storm as a development dependency. Storm is hosted on Clojars (a Maven repository). To include Storm in your project as a development dependency, add the following to your pom.xml:</p>
+
+<p>```xml</p>
+<repository>
+  <id>clojars.org</id>
+  <url>http://clojars.org/repo</url>
+</repository>
+<p>```</p>
+
+<p>```xml</p>
+<dependency>
+  <groupid>storm</groupid>
+  <artifactid>storm</artifactid>
+  <version>0.7.2</version>
+  <scope>test</scope>
+</dependency>
+<p>```</p>
+
+<p><a href="https://github.com/nathanmarz/storm-starter/blob/master/m2-pom.xml">Here’s an example</a> of a pom.xml for a Storm project.</p>
+
+<p>If Maven isn’t your thing, check out <a href="https://github.com/technomancy/leiningen">leiningen</a>. Leiningen is a build tool for Clojure, but it can be used for pure Java projects as well. Leiningen makes builds and dependency management using Maven dead-simple. Here’s an example project.clj for a pure-Java Storm project:</p>
+
+<p><code>clojure
+(defproject storm-starter "0.0.1-SNAPSHOT"
+  :java-source-path "src/jvm"
+  :javac-options {:debug "true" :fork "true"}
+  :jvm-opts ["-Djava.library.path=/usr/local/lib:/opt/local/lib:/usr/lib"]
+  :dependencies []
+  :dev-dependencies [
+                     [storm "0.7.2"]
+                     ])
+</code></p>
+
+<p>You can fetch dependencies using <code>lein deps</code>, build the project with <code>lein compile</code>, and make a jar suitable for submitting to a cluster with <code>lein uberjar</code>.</p>
+
+<h3 id="using-storm-as-a-library">Using Storm as a library</h3>
+
+<p>If you want to use Storm as a library (e.g., use the Distributed RPC client) and have the Storm dependency jars be distributed with your application, there’s a separate Maven dependency called “storm/storm-lib”. The only difference between this dependency and the usual “storm/storm” is that storm-lib does not have any logging configured.</p>
+
+<h3 id="developing-storm">Developing Storm</h3>
+
+<p>You will want to</p>
+
+<pre><code>bash ./bin/install_zmq.sh   # install the jzmq dependency
+lein sub install
+</code></pre>
+
+<p>Build javadocs with</p>
+
+<pre><code>bash ./bin/javadoc.sh
+</code></pre>
+
+<h3 id="building-a-storm-release">Building a Storm Release</h3>
+
+<p>Use the file <code>bin/build_release.sh</code> to make a zipfile like the ones you would download (and like what the bin files require in order to run daemons).</p>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

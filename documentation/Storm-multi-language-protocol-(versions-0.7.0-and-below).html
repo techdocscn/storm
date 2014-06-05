@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>This page explains the multilang protocol for versions 0.7.0 and below. The protocol changed in version 0.7.1.</p>
+
+<h1 id="storm-multi-language-protocol">Storm Multi-Language Protocol</h1>
+
+<h2 id="the-shellbolt">The ShellBolt</h2>
+
+<p>Support for multiple languages is implemented via the ShellBolt class.  This
+class implements the IBolt interfaces and implements the protocol for
+executing a script or program via the shell using Java’s ProcessBuilder class.</p>
+
+<h2 id="output-fields">Output fields</h2>
+
+<p>Output fields are part of the Thrift definition of the topology. This means that when you multilang in Java, you need to create a bolt that extends ShellBolt, implements IRichBolt, and declared the fields in <code>declareOutputFields</code>. 
+You can learn more about this on <a href="Concepts.html">Concepts</a></p>
+
+<h2 id="protocol-preamble">Protocol Preamble</h2>
+
+<p>A simple protocol is implemented via the STDIN and STDOUT of the executed
+script or program. A mix of simple strings and JSON encoded data are exchanged
+with the process making support possible for pretty much any language.</p>
+
+<h1 id="packaging-your-stuff">Packaging Your Stuff</h1>
+
+<p>To run a ShellBolt on a cluster, the scripts that are shelled out to must be
+in the <code>resources/</code> directory within the jar submitted to the master.</p>
+
+<p>However, During development or testing on a local machine, the resources
+directory just needs to be on the classpath.</p>
+
+<h2 id="the-protocol">The Protocol</h2>
+
+<p>Notes:
+* Both ends of this protocol use a line-reading mechanism, so be sure to
+trim off newlines from the input and to append them to your output.
+* All JSON inputs and outputs are terminated by a single line contained “end”.
+* The bullet points below are written from the perspective of the script writer’s
+STDIN and STDOUT.</p>
+
+<ul>
+  <li>Your script will be executed by the Bolt.</li>
+  <li>STDIN: A string representing a path. This is a PID directory.
+Your script should create an empty file named with it’s pid in this directory. e.g.
+the PID is 1234, so an empty file named 1234 is created in the directory. This
+file lets the supervisor know the PID so it can shutdown the process later on.</li>
+  <li>STDOUT: Your PID. This is not JSON encoded, just a string. ShellBolt will log the PID to its log.</li>
+  <li>STDIN: (JSON) The Storm configuration.  Various settings and properties.</li>
+  <li>STDIN: (JSON) The Topology context</li>
+  <li>The rest happens in a while(true) loop</li>
+  <li>STDIN: A tuple! This is a JSON encoded structure like this:</li>
+</ul>
+
+<p><code>
+{
+    // The tuple's id
+	"id": -6955786537413359385,
+	// The id of the component that created this tuple
+	"comp": 1,
+	// The id of the stream this tuple was emitted to
+	"stream": 1,
+	// The id of the task that created this tuple
+	"task": 9,
+	// All the values in this tuple
+	"tuple": ["snow white and the seven dwarfs", "field2", 3]
+}
+</code></p>
+
+<ul>
+  <li>STDOUT: The results of your bolt, JSON encoded. This can be a sequence of acks, fails, emits, and/or logs. Emits look like:</li>
+</ul>
+
+<p><code>
+{
+	"command": "emit",
+	// The ids of the tuples this output tuples should be anchored to
+	"anchors": [1231231, -234234234],
+	// The id of the stream this tuple was emitted to. Leave this empty to emit to default stream.
+	"stream": 1,
+	// If doing an emit direct, indicate the task to sent the tuple to
+	"task": 9,
+	// All the values in this tuple
+	"tuple": ["field1", 2, 3]
+}
+</code></p>
+
+<p>An ack looks like:</p>
+
+<p><code>
+{
+	"command": "ack",
+	// the id of the tuple to ack
+	"id": 123123
+}
+</code></p>
+
+<p>A fail looks like:</p>
+
+<p><code>
+{
+	"command": "fail",
+	// the id of the tuple to fail
+	"id": 123123
+}
+</code></p>
+
+<p>A “log” will log a message in the worker log. It looks like:</p>
+
+<p>```
+{
+	“command”: “log”,
+	// the message to log
+	“msg”: “hello world!”</p>
+
+<p>}
+```</p>
+
+<ul>
+  <li>STDOUT: emit “sync” as a single line by itself when the bolt has finished emitting/acking/failing and is ready for the next input</li>
+</ul>
+
+<h3 id="sync">sync</h3>
+
+<p>Note: This command is not JSON encoded, it is sent as a simple string.</p>
+
+<p>This lets the parent bolt know that the script has finished processing and is ready for another tuple.</p>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

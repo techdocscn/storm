@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>The idea behind distributed RPC (DRPC) is to parallelize the computation of really intense functions on the fly using Storm. The Storm topology takes in as input a stream of function arguments, and it emits an output stream of the results for each of those function calls. </p>
+
+<p>DRPC is not so much a feature of Storm as it is a pattern expressed from Storm’s primitives of streams, spouts, bolts, and topologies. DRPC could have been packaged as a separate library from Storm, but it’s so useful that it’s bundled with Storm.</p>
+
+<h3 id="high-level-overview">High level overview</h3>
+
+<p>Distributed RPC is coordinated by a “DRPC server” (Storm comes packaged with an implementation of this). The DRPC server coordinates receiving an RPC request, sending the request to the Storm topology, receiving the results from the Storm topology, and sending the results back to the waiting client. From a client’s perspective, a distributed RPC call looks just like a regular RPC call. For example, here’s how a client would compute the results for the “reach” function with the argument “http://twitter.com”:</p>
+
+<p><code>java
+DRPCClient client = new DRPCClient("drpc-host", 3772);
+String result = client.execute("reach", "http://twitter.com");
+</code></p>
+
+<p>The distributed RPC workflow looks like this:</p>
+
+<p><img src="images/drpc-workflow.png" alt="Tasks in a topology" /></p>
+
+<p>A client sends the DRPC server the name of the function to execute and the arguments to that function. The topology implementing that function uses a <code>DRPCSpout</code> to receive a function invocation stream from the DRPC server. Each function invocation is tagged with a unique id by the DRPC server. The topology then computes the result and at the end of the topology a bolt called <code>ReturnResults</code> connects to the DRPC server and gives it the result for the function invocation id. The DRPC server then uses the id to match up that result with which client is waiting, unblocks the waiting client, and sends it the result.</p>
+
+<h3 id="lineardrpctopologybuilder">LinearDRPCTopologyBuilder</h3>
+
+<p>Storm comes with a topology builder called <a href="/apidocs/backtype/storm/drpc/LinearDRPCTopologyBuilder.html">LinearDRPCTopologyBuilder</a> that automates almost all the steps involved for doing DRPC. These include:</p>
+
+<ol>
+  <li>Setting up the spout</li>
+  <li>Returning the results to the DRPC server</li>
+  <li>Providing functionality to bolts for doing finite aggregations over groups of tuples</li>
+</ol>
+
+<p>Let’s look at a simple example. Here’s the implementation of a DRPC topology that returns its input argument with a “!” appended:</p>
+
+<p>```java
+public static class ExclaimBolt extends BaseBasicBolt {
+    public void execute(Tuple tuple, BasicOutputCollector collector) {
+        String input = tuple.getString(1);
+        collector.emit(new Values(tuple.getValue(0), input + “!”));
+    }</p>
+
+<pre><code>public void declareOutputFields(OutputFieldsDeclarer declarer) {
+    declarer.declare(new Fields("id", "result"));
+} }
+</code></pre>
+
+<p>public static void main(String[] args) throws Exception {
+    LinearDRPCTopologyBuilder builder = new LinearDRPCTopologyBuilder(“exclamation”);
+    builder.addBolt(new ExclaimBolt(), 3);
+    // …
+}
+```</p>
+
+<p>As you can see, there’s very little to it. When creating the <code>LinearDRPCTopologyBuilder</code>, you tell it the name of the DRPC function for the topology. A single DRPC server can coordinate many functions, and the function name distinguishes the functions from one another. The first bolt you declare will take in as input 2-tuples, where the first field is the request id and the second field is the arguments for that request. <code>LinearDRPCTopologyBuilder</code> expects the last bolt to emit an output stream containing 2-tuples of the form [id, result]. Finally, all intermediate tuples must contain the request id as the first field.</p>
+
+<p>In this example, <code>ExclaimBolt</code> simply appends a “!” to the second field of the tuple. <code>LinearDRPCTopologyBuilder</code> handles the rest of the coordination of connecting to the DRPC server and sending results back.</p>
+
+<h3 id="local-mode-drpc">Local mode DRPC</h3>
+
+<p>DRPC can be run in local mode. Here’s how to run the above example in local mode:</p>
+
+<p>```java
+LocalDRPC drpc = new LocalDRPC();
+LocalCluster cluster = new LocalCluster();</p>
+
+<p>cluster.submitTopology(“drpc-demo”, conf, builder.createLocalTopology(drpc));</p>
+
+<p>System.out.println(“Results for ‘hello’:” + drpc.execute(“exclamation”, “hello”));</p>
+
+<p>cluster.shutdown();
+drpc.shutdown();
+```</p>
+
+<p>First you create a <code>LocalDRPC</code> object. This object simulates a DRPC server in process, just like how <code>LocalCluster</code> simulates a Storm cluster in process. Then you create the <code>LocalCluster</code> to run the topology in local mode. <code>LinearDRPCTopologyBuilder</code> has separate methods for creating local topologies and remote topologies. In local mode the <code>LocalDRPC</code> object does not bind to any ports so the topology needs to know about the object to communicate with it. This is why <code>createLocalTopology</code> takes in the <code>LocalDRPC</code> object as input.</p>
+
+<p>After launching the topology, you can do DRPC invocations using the <code>execute</code> method on <code>LocalDRPC</code>.</p>
+
+<h3 id="remote-mode-drpc">Remote mode DRPC</h3>
+
+<p>Using DRPC on an actual cluster is also straightforward. There’s three steps:</p>
+
+<ol>
+  <li>Launch DRPC server(s)</li>
+  <li>Configure the locations of the DRPC servers</li>
+  <li>Submit DRPC topologies to Storm cluster</li>
+</ol>
+
+<p>Launching a DRPC server can be done with the <code>storm</code> script and is just like launching Nimbus or the UI:</p>
+
+<p><code>
+bin/storm drpc
+</code></p>
+
+<p>Next, you need to configure your Storm cluster to know the locations of the DRPC server(s). This is how <code>DRPCSpout</code> knows from where to read function invocations. This can be done through the <code>storm.yaml</code> file or the topology configurations. Configuring this through the <code>storm.yaml</code> looks something like this:</p>
+
+<p><code>yaml
+drpc.servers:
+  - "drpc1.foo.com"
+  - "drpc2.foo.com"
+</code></p>
+
+<p>Finally, you launch DRPC topologies using <code>StormSubmitter</code> just like you launch any other topology. To run the above example in remote mode, you do something like this:</p>
+
+<p><code>java
+StormSubmitter.submitTopology("exclamation-drpc", conf, builder.createRemoteTopology());
+</code></p>
+
+<p><code>createRemoteTopology</code> is used to create topologies suitable for Storm clusters.</p>
+
+<h3 id="a-more-complex-example">A more complex example</h3>
+
+<p>The exclamation DRPC example was a toy example for illustrating the concepts of DRPC. Let’s look at a more complex example which really needs the parallelism a Storm cluster provides for computing the DRPC function. The example we’ll look at is computing the reach of a URL on Twitter.</p>
+
+<p>The reach of a URL is the number of unique people exposed to a URL on Twitter. To compute reach, you need to:</p>
+
+<ol>
+  <li>Get all the people who tweeted the URL</li>
+  <li>Get all the followers of all those people</li>
+  <li>Unique the set of followers</li>
+  <li>Count the unique set of followers</li>
+</ol>
+
+<p>A single reach computation can involve thousands of database calls and tens of millions of follower records during the computation. It’s a really, really intense computation. As you’re about to see, implementing this function on top of Storm is dead simple. On a single machine, reach can take minutes to compute; on a Storm cluster, you can compute reach for even the hardest URLs in a couple seconds.</p>
+
+<p>A sample reach topology is defined in storm-starter <a href="https://github.com/nathanmarz/storm-starter/blob/master/src/jvm/storm/starter/ReachTopology.java">here</a>. Here’s how you define the reach topology:</p>
+
+<p><code>java
+LinearDRPCTopologyBuilder builder = new LinearDRPCTopologyBuilder("reach");
+builder.addBolt(new GetTweeters(), 3);
+builder.addBolt(new GetFollowers(), 12)
+        .shuffleGrouping();
+builder.addBolt(new PartialUniquer(), 6)
+        .fieldsGrouping(new Fields("id", "follower"));
+builder.addBolt(new CountAggregator(), 2)
+        .fieldsGrouping(new Fields("id"));
+</code></p>
+
+<p>The topology executes as four steps:</p>
+
+<ol>
+  <li><code>GetTweeters</code> gets the users who tweeted the URL. It transforms an input stream of <code>[id, url]</code> into an output stream of <code>[id, tweeter]</code>. Each <code>url</code> tuple will map to many <code>tweeter</code> tuples.</li>
+  <li><code>GetFollowers</code> gets the followers for the tweeters. It transforms an input stream of <code>[id, tweeter]</code> into an output stream of <code>[id, follower]</code>. Across all the tasks, there may of course be duplication of follower tuples when someone follows multiple people who tweeted the same URL.</li>
+  <li><code>PartialUniquer</code> groups the followers stream by the follower id. This has the effect of the same follower going to the same task. So each task of <code>PartialUniquer</code> will receive mutually independent sets of followers. Once <code>PartialUniquer</code> receives all the follower tuples directed at it for the request id, it emits the unique count of its subset of followers.</li>
+  <li>Finally, <code>CountAggregator</code> receives the partial counts from each of the <code>PartialUniquer</code> tasks and sums them up to complete the reach computation.</li>
+</ol>
+
+<p>Let’s take a look at the <code>PartialUniquer</code> bolt:</p>
+
+<p>```java
+public class PartialUniquer extends BaseBatchBolt {
+    BatchOutputCollector _collector;
+    Object _id;
+    Set<string> _followers = new HashSet<string>();</string></string></p>
+
+<pre><code>@Override
+public void prepare(Map conf, TopologyContext context, BatchOutputCollector collector, Object id) {
+    _collector = collector;
+    _id = id;
+}
+
+@Override
+public void execute(Tuple tuple) {
+    _followers.add(tuple.getString(1));
+}
+
+@Override
+public void finishBatch() {
+    _collector.emit(new Values(_id, _followers.size()));
+}
+
+@Override
+public void declareOutputFields(OutputFieldsDeclarer declarer) {
+    declarer.declare(new Fields("id", "partial-count"));
+} } ```
+</code></pre>
+
+<p><code>PartialUniquer</code> implements <code>IBatchBolt</code> by extending <code>BaseBatchBolt</code>. A batch bolt provides a first class API to processing a batch of tuples as a concrete unit. A new instance of the batch bolt is created for each request id, and Storm takes care of cleaning up the instances when appropriate. </p>
+
+<p>When <code>PartialUniquer</code> receives a follower tuple in the <code>execute</code> method, it adds it to the set for the request id in an internal <code>HashSet</code>. </p>
+
+<p>Batch bolts provide the <code>finishBatch</code> method which is called after all the tuples for this batch targeted at this task have been processed. In the callback, <code>PartialUniquer</code> emits a single tuple containing the unique count for its subset of follower ids.</p>
+
+<p>Under the hood, <code>CoordinatedBolt</code> is used to detect when a given bolt has received all of the tuples for any given request id. <code>CoordinatedBolt</code> makes use of direct streams to manage this coordination.</p>
+
+<p>The rest of the topology should be self-explanatory. As you can see, every single step of the reach computation is done in parallel, and defining the DRPC topology was extremely simple.</p>
+
+<h3 id="non-linear-drpc-topologies">Non-linear DRPC topologies</h3>
+
+<p><code>LinearDRPCTopologyBuilder</code> only handles “linear” DRPC topologies, where the computation is expressed as a sequence of steps (like reach). It’s not hard to imagine functions that would require a more complicated topology with branching and merging of the bolts. For now, to do this you’ll need to drop down into using <code>CoordinatedBolt</code> directly. Be sure to talk about your use case for non-linear DRPC topologies on the mailing list to inform the construction of more general abstractions for DRPC topologies.</p>
+
+<h3 id="how-lineardrpctopologybuilder-works">How LinearDRPCTopologyBuilder works</h3>
+
+<ul>
+  <li>DRPCSpout emits [args, return-info]. return-info is the host and port of the DRPC server as well as the id generated by the DRPC server</li>
+  <li>constructs a topology comprising of:
+    <ul>
+      <li>DRPCSpout</li>
+      <li>PrepareRequest (generates a request id and creates a stream for the return info and a stream for the args)</li>
+      <li>CoordinatedBolt wrappers and direct groupings</li>
+      <li>JoinResult (joins the result with the return info)</li>
+      <li>ReturnResult (connects to the DRPC server and returns the result)</li>
+    </ul>
+  </li>
+  <li>LinearDRPCTopologyBuilder is a good example of a higher level abstraction built on top of Storm’s primitives</li>
+</ul>
+
+<h3 id="advanced">Advanced</h3>
+<ul>
+  <li>KeyedFairBolt for weaving the processing of multiple requests at the same time</li>
+  <li>How to use <code>CoordinatedBolt</code> directly</li>
+</ul>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

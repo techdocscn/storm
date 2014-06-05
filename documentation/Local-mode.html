@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>Local mode simulates a Storm cluster in process and is useful for developing and testing topologies. Running topologies in local mode is similar to running topologies <a href="Running-topologies-on-a-production-cluster.html">on a cluster</a>. </p>
+
+<p>To create an in-process cluster, simply use the <code>LocalCluster</code> class. For example:</p>
+
+<p>```java
+import backtype.storm.LocalCluster;</p>
+
+<p>LocalCluster cluster = new LocalCluster();
+```</p>
+
+<p>You can then submit topologies using the <code>submitTopology</code> method on the <code>LocalCluster</code> object. Just like the corresponding method on <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a>, <code>submitTopology</code> takes a name, a topology configuration, and the topology object. You can then kill a topology using the <code>killTopology</code> method which takes the topology name as an argument.</p>
+
+<p>To shutdown a local cluster, simple call:</p>
+
+<p><code>java
+cluster.shutdown();
+</code></p>
+
+<h3 id="common-configurations-for-local-mode">Common configurations for local mode</h3>
+
+<p>You can see a full list of configurations <a href="/apidocs/backtype/storm/Config.html">here</a>.</p>
+
+<ol>
+  <li><strong>Config.TOPOLOGY_MAX_TASK_PARALLELISM</strong>: This config puts a ceiling on the number of threads spawned for a single component. Oftentimes production topologies have a lot of parallelism (hundreds of threads) which places unreasonable load when trying to test the topology in local mode. This config lets you easy control that parallelism.</li>
+  <li><strong>Config.TOPOLOGY_DEBUG</strong>: When this is set to true, Storm will log a message every time a tuple is emitted from any spout or bolt. This is extremely useful for debugging.</li>
+</ol>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>
