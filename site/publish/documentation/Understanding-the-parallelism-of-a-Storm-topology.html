@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<h1 id="what-makes-a-running-topology-worker-processes-executors-and-tasks">What makes a running topology: worker processes, executors and tasks</h1>
+
+<p>Storm distinguishes between the following three main entities that are used to actually run a topology in a Storm cluster:</p>
+
+<ol>
+  <li>Worker processes</li>
+  <li>Executors (threads)</li>
+  <li>Tasks</li>
+</ol>
+
+<p>Here is a simple illustration of their relationships:</p>
+
+<p><img src="images/relationships-worker-processes-executors-tasks.png" alt="The relationships of worker processes, executors (threads) and tasks in Storm" /></p>
+
+<p>A <em>worker process</em> executes a subset of a topology. A worker process belongs to a specific topology and may run one or more executors for one or more components (spouts or bolts) of this topology. A running topology consists of many such processes running on many machines within a Storm cluster.</p>
+
+<p>An <em>executor</em> is a thread that is spawned by a worker process. It may run one or more tasks for the same component (spout or bolt).</p>
+
+<p>A <em>task</em> performs the actual data processing — each spout or bolt that you implement in your code executes as many tasks across the cluster. The number of tasks for a component is always the same throughout the lifetime of a topology, but the number of executors (threads) for a component can change over time. This means that the following condition holds true: <code>#threads ≤ #tasks</code>. By default, the number of tasks is set to be the same as the number of executors, i.e. Storm will run one task per thread.</p>
+
+<h1 id="configuring-the-parallelism-of-a-topology">Configuring the parallelism of a topology</h1>
+
+<p>Note that in Storm’s terminology “parallelism” is specifically used to describe the so-called <em>parallelism hint</em>, which means the initial number of executor (threads) of a component. In this document though we use the term “parallelism” in a more general sense to describe how you can configure not only the number of executors but also the number of worker processes and the number of tasks of a Storm topology. We will specifically call out when “parallelism” is used in the normal, narrow definition of Storm.</p>
+
+<p>The following sections give an overview of the various configuration options and how to set them in your code. There is more than one way of setting these options though, and the table lists only some of them. Storm currently has the following <a href="Configuration.html">order of precedence for configuration settings</a>: <code>defaults.yaml</code> &lt; <code>storm.yaml</code> &lt; topology-specific configuration &lt; internal component-specific configuration &lt; external component-specific configuration.</p>
+
+<h2 id="number-of-worker-processes">Number of worker processes</h2>
+
+<ul>
+  <li>Description: How many worker processes to create <em>for the topology</em> across machines in the cluster.</li>
+  <li>Configuration option: <a href="/apidocs/backtype/storm/Config.html#TOPOLOGY_WORKERS">TOPOLOGY_WORKERS</a></li>
+  <li>How to set in your code (examples):
+    <ul>
+      <li><a href="/apidocs/backtype/storm/Config.html">Config#setNumWorkers</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="number-of-executors-threads">Number of executors (threads)</h2>
+
+<ul>
+  <li>Description: How many executors to spawn <em>per component</em>.</li>
+  <li>Configuration option: ?</li>
+  <li>How to set in your code (examples):
+    <ul>
+      <li><a href="/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder#setSpout()</a></li>
+      <li><a href="/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder#setBolt()</a></li>
+      <li>Note that as of Storm 0.8 the <code>parallelism_hint</code> parameter now specifies the initial number of executors (not tasks!) for that bolt.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="number-of-tasks">Number of tasks</h2>
+
+<ul>
+  <li>Description: How many tasks to create <em>per component</em>.</li>
+  <li>Configuration option: <a href="/apidocs/backtype/storm/Config.html#TOPOLOGY_TASKS">TOPOLOGY_TASKS</a></li>
+  <li>How to set in your code (examples):
+    <ul>
+      <li><a href="/apidocs/backtype/storm/topology/ComponentConfigurationDeclarer.html">ComponentConfigurationDeclarer#setNumTasks()</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>Here is an example code snippet to show these settings in practice:</p>
+
+<p><code>java
+topologyBuilder.setBolt("green-bolt", new GreenBolt(), 2)
+               .setNumTasks(4)
+               .shuffleGrouping("blue-spout);
+</code></p>
+
+<p>In the above code we configured Storm to run the bolt <code>GreenBolt</code> with an initial number of two executors and four associated tasks. Storm will run two tasks per executor (thread). If you do not explicitly configure the number of tasks, Storm will run by default one task per executor.</p>
+
+<h1 id="example-of-a-running-topology">Example of a running topology</h1>
+
+<p>The following illustration shows how a simple topology would look like in operation. The topology consists of three components: one spout called <code>BlueSpout</code> and two bolts called <code>GreenBolt</code> and <code>YellowBolt</code>. The components are linked such that <code>BlueSpout</code> sends its output to <code>GreenBolt</code>, which in turns sends its own output to <code>YellowBolt</code>.</p>
+
+<p><img src="images/example-of-a-running-topology.png" alt="Example of a running topology in Storm" /></p>
+
+<p>The <code>GreenBolt</code> was configured as per the code snippet above whereas <code>BlueSpout</code> and <code>YellowBolt</code> only set the parallelism hint (number of executors). Here is the relevant code:</p>
+
+<p>```java
+Config conf = new Config();
+conf.setNumWorkers(2); // use two worker processes</p>
+
+<p>topologyBuilder.setSpout(“blue-spout”, new BlueSpout(), 2); // set parallelism hint to 2</p>
+
+<p>topologyBuilder.setBolt(“green-bolt”, new GreenBolt(), 2)
+               .setNumTasks(4)
+               .shuffleGrouping(“blue-spout”);</p>
+
+<p>topologyBuilder.setBolt(“yellow-bolt”, new YellowBolt(), 6)
+               .shuffleGrouping(“green-bolt”);</p>
+
+<p>StormSubmitter.submitTopology(
+        “mytopology”,
+        conf,
+        topologyBuilder.createTopology()
+    );
+```</p>
+
+<p>And of course Storm comes with additional configuration settings to control the parallelism of a topology, including:</p>
+
+<ul>
+  <li><a href="/apidocs/backtype/storm/Config.html#TOPOLOGY_MAX_TASK_PARALLELISM">TOPOLOGY_MAX_TASK_PARALLELISM</a>: This setting puts a ceiling on the number of executors that can be spawned for a single component. It is typically used during testing to limit the number of threads spawned when running a topology in local mode. You can set this option via e.g. <a href="/apidocs/backtype/storm/Config.html">Config#setMaxTaskParallelism()</a>.</li>
+</ul>
+
+<h1 id="how-to-change-the-parallelism-of-a-running-topology">How to change the parallelism of a running topology</h1>
+
+<p>A nifty feature of Storm is that you can increase or decrease the number of worker processes and/or executors without being required to restart the cluster or the topology. The act of doing so is called rebalancing.</p>
+
+<p>You have two options to rebalance a topology:</p>
+
+<ol>
+  <li>Use the Storm web UI to rebalance the topology.</li>
+  <li>Use the CLI tool storm rebalance as described below.</li>
+</ol>
+
+<p>Here is an example of using the CLI tool:</p>
+
+<p>```
+# Reconfigure the topology “mytopology” to use 5 worker processes,
+# the spout “blue-spout” to use 3 executors and
+# the bolt “yellow-bolt” to use 10 executors.</p>
+
+<p>$ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
+```</p>
+
+<h1 id="references-for-this-article">References for this article</h1>
+
+<ul>
+  <li><a href="Concepts.html">Concepts</a></li>
+  <li><a href="Configuration.html">Configuration</a></li>
+  <li><a href="Running-topologies-on-a-production-cluster.html">Running topologies on a production cluster</a>]</li>
+  <li><a href="Local-mode.html">Local mode</a></li>
+  <li><a href="Tutorial.html">Tutorial</a></li>
+  <li><a href="/apidocs/">Storm API documentation</a>, most notably the class <code>Config</code></li>
+</ul>
+
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

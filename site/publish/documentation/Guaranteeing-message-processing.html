@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>Storm guarantees that each message coming off a spout will be fully processed. This page describes how Storm accomplishes this guarantee and what you have to do as a user to benefit from Storm’s reliability capabilities.</p>
+
+<h3 id="what-does-it-mean-for-a-message-to-be-fully-processed">What does it mean for a message to be “fully processed”?</h3>
+
+<p>A tuple coming off a spout can trigger thousands of tuples to be created based on it. Consider, for example, the streaming word count topology:</p>
+
+<p><code>java
+TopologyBuilder builder = new TopologyBuilder();
+builder.setSpout("sentences", new KestrelSpout("kestrel.backtype.com",
+                                               22133,
+                                               "sentence_queue",
+                                               new StringScheme()));
+builder.setBolt("split", new SplitSentence(), 10)
+        .shuffleGrouping("sentences");
+builder.setBolt("count", new WordCount(), 20)
+        .fieldsGrouping("split", new Fields("word"));
+</code></p>
+
+<p>This topology reads sentences off of a Kestrel queue, splits the sentences into its constituent words, and then emits for each word the number of times it has seen that word before. A tuple coming off the spout triggers many tuples being created based on it: a tuple for each word in the sentence and a tuple for the updated count for each word. The tree of messages looks something like this:</p>
+
+<p><img src="images/tuple_tree.png" alt="Tuple tree" /></p>
+
+<p>Storm considers a tuple coming off a spout “fully processed” when the tuple tree has been exhausted and every message in the tree has been processed. A tuple is considered failed when its tree of messages fails to be fully processed within a specified timeout. This timeout can be configured on a topology-specific basis using the <a href="/apidocs/backtype/storm/Config.html#TOPOLOGY_MESSAGE_TIMEOUT_SECS">Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS</a> configuration and defaults to 30 seconds.</p>
+
+<h3 id="what-happens-if-a-message-is-fully-processed-or-fails-to-be-fully-processed">What happens if a message is fully processed or fails to be fully processed?</h3>
+
+<p>To understand this question, let’s take a look at the lifecycle of a tuple coming off of a spout. For reference, here is the interface that spouts implement (see the <a href="/apidocs/backtype/storm/spout/ISpout.html">Javadoc</a> for more information):</p>
+
+<p><code>java
+public interface ISpout extends Serializable {
+    void open(Map conf, TopologyContext context, SpoutOutputCollector collector);
+    void close();
+    void nextTuple();
+    void ack(Object msgId);
+    void fail(Object msgId);
+}
+</code></p>
+
+<p>First, Storm requests a tuple from the <code>Spout</code> by calling the <code>nextTuple</code> method on the <code>Spout</code>. The <code>Spout</code> uses the <code>SpoutOutputCollector</code> provided in the <code>open</code> method to emit a tuple to one of its output streams. When emitting a tuple, the <code>Spout</code> provides a “message id” that will be used to identify the tuple later. For example, the <code>KestrelSpout</code> reads a message off of the kestrel queue and emits as the “message id” the id provided by Kestrel for the message. Emitting a message to the <code>SpoutOutputCollector</code> looks like this:</p>
+
+<p><code>java
+_collector.emit(new Values("field1", "field2", 3) , msgId);
+</code></p>
+
+<p>Next, the tuple gets sent to consuming bolts and Storm takes care of tracking the tree of messages that is created. If Storm detects that a tuple is fully processed, Storm will call the <code>ack</code> method on the originating <code>Spout</code> task with the message id that the <code>Spout</code> provided to Storm. Likewise, if the tuple times-out Storm will call the <code>fail</code> method on the <code>Spout</code>. Note that a tuple will be acked or failed by the exact same <code>Spout</code> task that created it. So if a <code>Spout</code> is executing as many tasks across the cluster, a tuple won’t be acked or failed by a different task than the one that created it.</p>
+
+<p>Let’s use <code>KestrelSpout</code> again to see what a <code>Spout</code> needs to do to guarantee message processing. When <code>KestrelSpout</code> takes a message off the Kestrel queue, it “opens” the message. This means the message is not actually taken off the queue yet, but instead placed in a “pending” state waiting for acknowledgement that the message is completed. While in the pending state, a message will not be sent to other consumers of the queue. Additionally, if a client disconnects all pending messages for that client are put back on the queue. When a message is opened, Kestrel provides the client with the data for the message as well as a unique id for the message. The <code>KestrelSpout</code> uses that exact id as the “message id” for the tuple when emitting the tuple to the <code>SpoutOutputCollector</code>. Sometime later on, when <code>ack</code> or <code>fail</code> are called on the <code>KestrelSpout</code>, the <code>KestrelSpout</code> sends an ack or fail message to Kestrel with the message id to take the message off the queue or have it put back on.</p>
+
+<h3 id="what-is-storms-reliability-api">What is Storm’s reliability API?</h3>
+
+<p>There’s two things you have to do as a user to benefit from Storm’s reliability capabilities. First, you need to tell Storm whenever you’re creating a new link in the tree of tuples. Second, you need to tell Storm when you have finished processing an individual tuple. By doing both these things, Storm can detect when the tree of tuples is fully processed and can ack or fail the spout tuple appropriately. Storm’s API provides a concise way of doing both of these tasks. </p>
+
+<p>Specifying a link in the tuple tree is called <em>anchoring</em>. Anchoring is done at the same time you emit a new tuple. Let’s use the following bolt as an example. This bolt splits a tuple containing a sentence into a tuple for each word:</p>
+
+<p>```java
+public class SplitSentence extends BaseRichBolt {
+        OutputCollector _collector;</p>
+
+<pre><code>    public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+        _collector = collector;
+    }
+
+    public void execute(Tuple tuple) {
+        String sentence = tuple.getString(0);
+        for(String word: sentence.split(" ")) {
+            _collector.emit(tuple, new Values(word));
+        }
+        _collector.ack(tuple);
+    }
+
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("word"));
+    }        
+} ```
+</code></pre>
+
+<p>Each word tuple is <em>anchored</em> by specifying the input tuple as the first argument to <code>emit</code>. Since the word tuple is anchored, the spout tuple at the root of the tree will be replayed later on if the word tuple failed to be processed downstream. In contrast, let’s look at what happens if the word tuple is emitted like this:</p>
+
+<p><code>java
+_collector.emit(new Values(word));
+</code></p>
+
+<p>Emitting the word tuple this way causes it to be <em>unanchored</em>. If the tuple fails be processed downstream, the root tuple will not be replayed. Depending on the fault-tolerance guarantees you need in your topology, sometimes it’s appropriate to emit an unanchored tuple.</p>
+
+<p>An output tuple can be anchored to more than one input tuple. This is useful when doing streaming joins or aggregations. A multi-anchored tuple failing to be processed will cause multiple tuples to be replayed from the spouts. Multi-anchoring is done by specifying a list of tuples rather than just a single tuple. For example:</p>
+
+<p><code>java
+List&lt;Tuple&gt; anchors = new ArrayList&lt;Tuple&gt;();
+anchors.add(tuple1);
+anchors.add(tuple2);
+_collector.emit(anchors, new Values(1, 2, 3));
+</code></p>
+
+<p>Multi-anchoring adds the output tuple into multiple tuple trees. Note that it’s also possible for multi-anchoring to break the tree structure and create tuple DAGs, like so:</p>
+
+<p><img src="images/tuple-dag.png" alt="Tuple DAG" /></p>
+
+<p>Storm’s implementation works for DAGs as well as trees (pre-release it only worked for trees, and the name “tuple tree” stuck).</p>
+
+<p>Anchoring is how you specify the tuple tree – the next and final piece to Storm’s reliability API is specifying when you’ve finished processing an individual tuple in the tuple tree. This is done by using the <code>ack</code> and <code>fail</code> methods on the <code>OutputCollector</code>. If you look back at the <code>SplitSentence</code> example, you can see that the input tuple is acked after all the word tuples are emitted.</p>
+
+<p>You can use the <code>fail</code> method on the <code>OutputCollector</code> to immediately fail the spout tuple at the root of the tuple tree. For example, your application may choose to catch an exception from a database client and explicitly fail the input tuple. By failing the tuple explicitly, the spout tuple can be replayed faster than if you waited for the tuple to time-out.</p>
+
+<p>Every tuple you process must be acked or failed. Storm uses memory to track each tuple, so if you don’t ack/fail every tuple, the task will eventually run out of memory. </p>
+
+<p>A lot of bolts follow a common pattern of reading an input tuple, emitting tuples based on it, and then acking the tuple at the end of the <code>execute</code> method. These bolts fall into the categories of filters and simple functions. Storm has an interface called <code>BasicBolt</code> that encapsulates this pattern for you. The <code>SplitSentence</code> example can be written as a <code>BasicBolt</code> like follows:</p>
+
+<p>```java
+public class SplitSentence extends BaseBasicBolt {
+        public void execute(Tuple tuple, BasicOutputCollector collector) {
+            String sentence = tuple.getString(0);
+            for(String word: sentence.split(“ “)) {
+                collector.emit(new Values(word));
+            }
+        }</p>
+
+<pre><code>    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("word"));
+    }        
+} ```
+</code></pre>
+
+<p>This implementation is simpler than the implementation from before and is semantically identical. Tuples emitted to <code>BasicOutputCollector</code> are automatically anchored to the input tuple, and the input tuple is acked for you automatically when the execute method completes.</p>
+
+<p>In contrast, bolts that do aggregations or joins may delay acking a tuple until after it has computed a result based on a bunch of tuples. Aggregations and joins will commonly multi-anchor their output tuples as well. These things fall outside the simpler pattern of <code>IBasicBolt</code>.</p>
+
+<h3 id="how-do-i-make-my-applications-work-correctly-given-that-tuples-can-be-replayed">How do I make my applications work correctly given that tuples can be replayed?</h3>
+
+<p>As always in software design, the answer is “it depends.” Storm 0.7.0 introduced the “transactional topologies” feature, which enables you to get fully fault-tolerant exactly-once messaging semantics for most computations. Read more about transactional topologies <a href="Transactional-topologies.html">here</a>. </p>
+
+<h3 id="how-does-storm-implement-reliability-in-an-efficient-way">How does Storm implement reliability in an efficient way?</h3>
+
+<p>A Storm topology has a set of special “acker” tasks that track the DAG of tuples for every spout tuple. When an acker sees that a DAG is complete, it sends a message to the spout task that created the spout tuple to ack the message. You can set the number of acker tasks for a topology in the topology configuration using <a href="/apidocs/backtype/storm/Config.html#TOPOLOGY_ACKERS">Config.TOPOLOGY_ACKERS</a>. Storm defaults TOPOLOGY_ACKERS to one task – you will need to increase this number for topologies processing large amounts of messages. </p>
+
+<p>The best way to understand Storm’s reliability implementation is to look at the lifecycle of tuples and tuple DAGs. When a tuple is created in a topology, whether in a spout or a bolt, it is given a random 64 bit id. These ids are used by ackers to track the tuple DAG for every spout tuple.</p>
+
+<p>Every tuple knows the ids of all the spout tuples for which it exists in their tuple trees. When you emit a new tuple in a bolt, the spout tuple ids from the tuple’s anchors are copied into the new tuple. When a tuple is acked, it sends a message to the appropriate acker tasks with information about how the tuple tree changed. In particular it tells the acker “I am now completed within the tree for this spout tuple, and here are the new tuples in the tree that were anchored to me”. </p>
+
+<p>For example, if tuples “D” and “E” were created based on tuple “C”, here’s how the tuple tree changes when “C” is acked: </p>
+
+<p><img src="images/ack_tree.png" alt="What happens on an ack" /></p>
+
+<p>Since “C” is removed from the tree at the same time that “D” and “E” are added to it, the tree can never be prematurely completed.</p>
+
+<p>There are a few more details to how Storm tracks tuple trees. As mentioned already, you can have an arbitrary number of acker tasks in a topology. This leads to the following question: when a tuple is acked in the topology, how does it know to which acker task to send that information? </p>
+
+<p>Storm uses mod hashing to map a spout tuple id to an acker task. Since every tuple carries with it the spout tuple ids of all the trees they exist within, they know which acker tasks to communicate with. </p>
+
+<p>Another detail of Storm is how the acker tasks track which spout tasks are responsible for each spout tuple they’re tracking. When a spout task emits a new tuple, it simply sends a message to the appropriate acker telling it that its task id is responsible for that spout tuple. Then when an acker sees a tree has been completed, it knows to which task id to send the completion message.</p>
+
+<p>Acker tasks do not track the tree of tuples explicitly. For large tuple trees with tens of thousands of nodes (or more), tracking all the tuple trees could overwhelm the memory used by the ackers. Instead, the ackers take a different strategy that only requires a fixed amount of space per spout tuple (about 20 bytes). This tracking algorithm is the key to how Storm works and is one of its major breakthroughs.</p>
+
+<p>An acker task stores a map from a spout tuple id to a pair of values. The first value is the task id that created the spout tuple which is used later on to send completion messages. The second value is a 64 bit number called the “ack val”. The ack val is a representation of the state of the entire tuple tree, no matter how big or how small.  It is simply the xor of all tuple ids that have been created and/or acked in the tree.</p>
+
+<p>When an acker task sees that an “ack val” has become 0, then it knows that the tuple tree is completed. Since tuple ids are random 64 bit numbers, the chances of an “ack val” accidentally becoming 0 is extremely small. If you work the math, at 10K acks per second, it will take 50,000,000 years until a mistake is made. And even then, it will only cause data loss if that tuple happens to fail in the topology.</p>
+
+<p>Now that you understand the reliability algorithm, let’s go over all the failure cases and see how in each case Storm avoids data loss:</p>
+
+<ul>
+  <li><strong>A tuple isn’t acked because the task died</strong>: In this case the spout tuple ids at the root of the trees for the failed tuple will time out and be replayed.</li>
+  <li><strong>Acker task dies</strong>: In this case all the spout tuples the acker was tracking will time out and be replayed.</li>
+  <li><strong>Spout task dies</strong>: In this case the source that the spout talks to is responsible for replaying the messages. For example, queues like Kestrel and RabbitMQ will place all pending messages back on the queue when a client disconnects.</li>
+</ul>
+
+<p>As you have seen, Storm’s reliability mechanisms are completely distributed, scalable, and fault-tolerant. </p>
+
+<h3 id="tuning-reliability">Tuning reliability</h3>
+
+<p>Acker tasks are lightweight, so you don’t need very many of them in a topology. You can track their performance through the Storm UI (component id “__acker”). If the throughput doesn’t look right, you’ll need to add more acker tasks. </p>
+
+<p>If reliability isn’t important to you – that is, you don’t care about losing tuples in failure situations – then you can improve performance by not tracking the tuple tree for spout tuples. Not tracking a tuple tree halves the number of messages transferred since normally there’s an ack message for every tuple in the tuple tree. Additionally, it requires fewer ids to be kept in each downstream tuple, reducing bandwidth usage.</p>
+
+<p>There are three ways to remove reliability. The first is to set Config.TOPOLOGY_ACKERS to 0. In this case, Storm will call the <code>ack</code> method on the spout immediately after the spout emits a tuple. The tuple tree won’t be tracked.</p>
+
+<p>The second way is to remove reliability on a message by message basis. You can turn off tracking for an individual spout tuple by omitting a message id in the <code>SpoutOutputCollector.emit</code> method.</p>
+
+<p>Finally, if you don’t care if a particular subset of the tuples downstream in the topology fail to be processed, you can emit them as unanchored tuples. Since they’re not anchored to any spout tuples, they won’t cause any spout tuples to fail if they aren’t acked.</p>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

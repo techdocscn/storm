@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>Storm has a variety of configurations for tweaking the behavior of nimbus, supervisors, and running topologies. Some configurations are system configurations and cannot be modified on a topology by topology basis, whereas other configurations can be modified per topology. </p>
+
+<p>Every configuration has a default value defined in <a href="https://github.com/apache/incubator-storm/blob/master/conf/defaults.yaml">defaults.yaml</a> in the Storm codebase. You can override these configurations by defining a storm.yaml in the classpath of Nimbus and the supervisors. Finally, you can define a topology-specific configuration that you submit along with your topology when using <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a>. However, the topology-specific configuration can only override configs prefixed with “TOPOLOGY”.</p>
+
+<p>Storm 0.7.0 and onwards lets you override configuration on a per-bolt/per-spout basis. The only configurations that can be overriden this way are:</p>
+
+<ol>
+  <li>“topology.debug”</li>
+  <li>“topology.max.spout.pending”</li>
+  <li>“topology.max.task.parallelism”</li>
+  <li>“topology.kryo.register”: This works a little bit differently than the other ones, since the serializations will be available to all components in the topology. More details on <a href="Serialization.html">Serialization</a>. </li>
+</ol>
+
+<p>The Java API lets you specify component specific configurations in two ways:</p>
+
+<ol>
+  <li><em>Internally:</em> Override <code>getComponentConfiguration</code> in any spout or bolt and return the component-specific configuration map.</li>
+  <li><em>Externally:</em> <code>setSpout</code> and <code>setBolt</code> in <code>TopologyBuilder</code> return an object with methods <code>addConfiguration</code> and <code>addConfigurations</code> that can be used to override the configurations for the component.</li>
+</ol>
+
+<p>The preference order for configuration values is defaults.yaml &lt; storm.yaml &lt; topology specific configuration &lt; internal component specific configuration &lt; external component specific configuration. </p>
+
+<p><strong>Resources:</strong></p>
+
+<ul>
+  <li><a href="/apidocs/backtype/storm/Config.html">Config</a>: a listing of all configurations as well as a helper class for creating topology specific configurations</li>
+  <li><a href="https://github.com/apache/incubator-storm/blob/master/conf/defaults.yaml">defaults.yaml</a>: the default values for all configurations</li>
+  <li><a href="Setting-up-a-Storm-cluster.html">Setting up a Storm cluster</a>: explains how to create and configure a Storm cluster</li>
+  <li><a href="Running-topologies-on-a-production-cluster.html">Running topologies on a production cluster</a>: lists useful configurations when running topologies on a cluster</li>
+  <li><a href="Local-mode.html">Local mode</a>: lists useful configurations when using local mode</li>
+</ul>
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

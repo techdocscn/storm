@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+	<title>Storm Documentation</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32530285-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+<div id="wrap">
+<div id="top">
+<div id="projecttitle">
+<h2><a href="/" title="Back to main page">Storm</a></h2>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+</div>
+<div id="menu">
+<ul>
+<li><a href="/about/integrates.html">about</a></li>
+
+<!--
+<li><a href="/blog.html">blog</a></li>
+-->
+
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="sidebar">
+  <ul>
+  
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+  
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+  
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+  
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+  
+<li><a class="" href="/apidocs/">Javadoc</a></li>
+  
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+  
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+  
+  </ul>
+</div>
+<div id="aboutcontent">
+<p>Storm exposes a metrics interface to report summary statistics across the full topology.
+It’s used internally to track the numbers you see in the Nimbus UI console: counts of executes and acks; average process latency per bolt; worker heap usage; and so forth.</p>
+
+<h3 id="metric-types">Metric Types</h3>
+
+<p>Metrics have to implement just one method, <code>getValueAndReset</code> – do any remaining work to find the summary value, and reset back to an initial state. For example, the MeanReducer divides the running total by its running count to find the mean, then initializes both values back to zero.</p>
+
+<p>Storm gives you these metric types:</p>
+
+<ul>
+  <li><a href="">AssignableMetric</a> – set the metric to the explicit value you supply. Useful if it’s an external value or in the case that you are already calculating the summary statistic yourself.</li>
+  <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/CombinedMetric.java">CombinedMetric</a> – generic interface for metrics that can be updated associatively. </li>
+  <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/CountMetric.java">CountMetric</a> – a running total of the supplied values. Call <code>incr()</code> to increment by one, <code>incrBy(n)</code> to add/subtract the given number.
+    <ul>
+      <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/MultiCountMetric.java">MultiCountMetric</a> – a hashmap of count metrics.</li>
+    </ul>
+  </li>
+  <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/ReducedMetric.java">ReducedMetric</a>
+    <ul>
+      <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/MeanReducer.java">MeanReducer</a> – track a running average of values given to its <code>reduce()</code> method. (It accepts <code>Double</code>, <code>Integer</code> or <code>Long</code> values, and maintains the internal average as a <code>Double</code>.) Despite his reputation, the MeanReducer is actually a pretty nice guy in person.</li>
+      <li><a href="https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/metric/api/MultiReducedMetric.java">MultiReducedMetric</a> – a hashmap of reduced metrics.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="metric-consumer">Metric Consumer</h3>
+
+<h3 id="build-your-own-metric">Build your own metric</h3>
+
+<h3 id="builtin-metrics">Builtin Metrics</h3>
+
+<p>The <a href="https://github.com/apache/incubator-storm/blob/46c3ba7/storm-core/src/clj/backtype/storm/daemon/builtin_metrics.clj">builtin metrics</a> instrument Storm itself.</p>
+
+<p><a href="https://github.com/apache/incubator-storm/blob/46c3ba7/storm-core/src/clj/backtype/storm/daemon/builtin_metrics.clj">builtin_metrics.clj</a> sets up data structures for the built-in metrics, and facade methods that the other framework components can use to update them. The metrics themselves are calculated in the calling code – see for example <a href="https://github.com/apache/incubator-storm/blob/46c3ba7/storm-core/src/clj/backtype/storm/daemon/executor.clj#358"><code>ack-spout-msg</code></a>  in <code>clj/b/s/daemon/daemon/executor.clj</code></p>
+
+
+</div>
+</div>
+<div id="clear"></div></div>
+<div id="footer">
+	<p>
+	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  <a href="http://incubator.apache.org/" style="border: none;">
+	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+	  </a>  </p>
+</div>
+</div>
+
+</body>
+</html>

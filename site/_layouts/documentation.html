@@ -1,0 +1,40 @@
+---
+layout: default
+title: Storm Documentation
+items:
+    - 
+      - "/documentation/Home.html"
+      - "Documentation Home"
+    - 
+      - "/documentation/Rationale.html"
+      - "Rationale"
+    - 
+      - "/documentation/Tutorial.html"
+      - "Tutorial"
+    - 
+      - "/documentation/Documentation.html"
+      - "Manual"
+    - 
+      - "/apidocs/"
+      - "Javadoc"
+    - 
+      - "/documentation/FAQ.html"
+      - "FAQ"
+    - 
+      - "/documentation/Contributing-to-Storm.html"
+      - "Contributing"
+
+---
+
+<div id="content">
+<div id="sidebar">
+  <ul>
+  {% for post in page.items %}
+<li><a class="{% if page.url == post[0] then %}current{% else %}{% endif %}" href="{{ post[0] }}">{{ post[1] }}</a></li>
+  {% endfor %}
+  </ul>
+</div>
+<div id="aboutcontent">
+{{ content }}
+</div>
+</div>
