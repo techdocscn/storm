@@ -40,4 +40,7 @@ $ cp -r _site/* ../
 $ git add .
 $ git commit -m "publish site"
 $ git push origin gh-pages
+$ git checkout master
+$ git merge gh-pages
+$ git push
 ```
