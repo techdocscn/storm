@@ -1,10 +1,9 @@
 ---
-layout: about
+layout: 关于
 ---
 
-Storm guarantees every tuple will be fully processed. One of Storm's core mechanisms is the ability to track the lineage of a tuple as it makes its way through the topology in an extremely efficient way. Read more about how this works [here](/documentation/Guaranteeing-message-processing.html).
+Storm的一个核心机制就是能够高效跟踪每一个tuple在topology中的lineage，从而保证完整的处理每一个tuple。可以到[这里](/documentation/Guaranteeing-message-processing.html)进一步了解它是如何工作的。
 
-Storm's basic abstractions provide an at-least-once processing guarantee, the same guarantee you get when using a queueing system. Messages are only replayed when there are failures.
+Storm的基本抽象保障对于每个 tuple 至少处理一次，这跟常用的队列系统是一样的。消息（messages）仅仅在失败的情况下会被重新处理。
 
-Using [Trident](/documentation/Trident-tutorial.html), a higher level abstraction over Storm's basic abstractions, you can achieve exactly-once processing semantics.
-
+[Trident](/documentation/Trident-tutorial.html)是基于 Storm 的高级抽象。通过使用Trident，你可以在语义上保证对于tuple处理一次且仅一次。
