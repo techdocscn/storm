@@ -46,5 +46,5 @@ Trident 是一个 Storm 的替换接口。它提供了 exactly-once 处理，“
 ### 高级
 
 * [Defining a non-JVM language DSL for Storm](Defining-a-non-jvm-language-dsl-for-storm.html)
-* [Multilang protocol](Multilang-protocol.html) (how to provide support for another language)
+* [Multilang protocol](Multilang-protocol.html) (如何支持另外一种语言)
 * [Implementation docs](Implementation-docs.html)
