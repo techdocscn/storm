@@ -1,7 +1,7 @@
 ---
 layout: documentation
 ---
-### Basics of Storm
+### Storm 基础
 
 * [Javadoc](http://nathanmarz.github.com/storm)
 * [Concepts](Concepts.html)
@@ -14,22 +14,22 @@ layout: documentation
 
 ### Trident
 
-Trident is an alternative interface to Storm. It provides exactly-once processing, "transactional" datastore persistence, and a set of common stream analytics operations.
+Trident 是一个 Storm 的替换接口。它提供了 exactly-once 处理，“事务性（transactional）”的数据持久化，和一套通用流分析操作。
 
-* [Trident Tutorial](Trident-tutorial.html)     -- basic concepts and walkthrough
-* [Trident API Overview](Trident-API-Overview.html) -- operations for transforming and orchestrating data
-* [Trident State](Trident-state.html)        -- exactly-once processing and fast, persistent aggregation
-* [Trident spouts](Trident-spouts.html)       -- transactional and non-transactional data intake
+* [Trident Tutorial](Trident-tutorial.html)     -- 基本概念和流程
+* [Trident API Overview](Trident-API-Overview.html) -- 变换和协调操作
+* [Trident State](Trident-state.html)        -- exactly-once 处理和快速持久聚合
+* [Trident spouts](Trident-spouts.html)       -- 事务性和非事务性数据输入
 
-### Setup and deploying
+### 设置和部署
 
 * [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html)
 * [Local mode](Local-mode.html)
 * [Troubleshooting](Troubleshooting.html)
 * [Running topologies on a production cluster](Running-topologies-on-a-production-cluster.html)
-* [Building Storm](Maven.html) with Maven
+* 通过 Maven [Building Storm](Maven.html) 
 
-### Intermediate
+### 中级
 
 * [Serialization](Serialization.html)
 * [Common patterns](Common-patterns.html)
@@ -43,7 +43,7 @@ Trident is an alternative interface to Storm. It provides exactly-once processin
 * [Metrics](Metrics.html)
 * [Lifecycle of a trident tuple]()
 
-### Advanced
+### 高级
 
 * [Defining a non-JVM language DSL for Storm](Defining-a-non-jvm-language-dsl-for-storm.html)
 * [Multilang protocol](Multilang-protocol.html) (how to provide support for another language)
