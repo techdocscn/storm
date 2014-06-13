@@ -1,9 +1,9 @@
 ---
 layout: documentation
 ---
-This page describes all the commands that are possible with the "storm" command line client. To learn how to set up your "storm" client to talk to a remote cluster, follow the instructions in [Setting up development environment](Setting-up-a-development-environment.html).
+此页包括所有在 “storm” 命令行客户端下可用得命令。请根据 [Setting up development environment](Setting-up-a-development-environment.html) 中的指令来学习配置你的 “storm” 客户端来与远程集群交流。
 
-These commands are:
+这些命令是:
 
 1. jar
 1. kill
@@ -21,80 +21,80 @@ These commands are:
 
 ### jar
 
-Syntax: `storm jar topology-jar-path class ...`
+语法: `storm jar topology-jar-path class ...`
 
-Runs the main method of `class` with the specified arguments. The storm jars and configs in `~/.storm` are put on the classpath. The process is configured so that [StormSubmitter](/apidocs/backtype/storm/StormSubmitter.html) will upload the jar at `topology-jar-path` when the topology is submitted.
+以提供的参数运行 `class` 中的 main 方法。这些在 `~/.storm` 中的 storm jars 和配置需要包含在 classpath 中。这个配置过程是为了当 topology 被提交的时候 [StormSubmitter](/apidocs/backtype/storm/StormSubmitter.html) 会上载在 `topology-jar-path` 路径下的 jar。
 
 ### kill
 
-Syntax: `storm kill topology-name [-w wait-time-secs]`
+语法: `storm kill topology-name [-w wait-time-secs]`
 
-Kills the topology with the name `topology-name`. Storm will first deactivate the topology's spouts for the duration of the topology's message timeout to allow all messages currently being processed to finish processing. Storm will then shutdown the workers and clean up their state. You can override the length of time Storm waits between deactivation and shutdown with the -w flag.
+杀死名字是 `topology-name` 的 topology 。Storm 会首先在 topology 的消息 timeout 时间内停止 topology 的 spouts，以便让所有正在处理中的消息可以完成。然后 Storm 会关闭 workers 和清除他们的状态。你可以用 -w 参数来改变 Storm 在停止和关闭之间的等待时间。
 
 ### activate
 
-Syntax: `storm activate topology-name`
+语法: `storm activate topology-name`
 
-Activates the specified topology's spouts.
+激活指定的 topology 的 spouts。
 
 ### deactivate
 
-Syntax: `storm deactivate topology-name`
+语法: `storm deactivate topology-name`
 
-Deactivates the specified topology's spouts.
+终止指定的 topology 的 spouts。
 
 ### rebalance
 
-Syntax: `storm rebalance topology-name [-w wait-time-secs]`
+语法: `storm rebalance topology-name [-w wait-time-secs]`
 
-Sometimes you may wish to spread out where the workers for a topology are running. For example, let's say you have a 10 node cluster running 4 workers per node, and then let's say you add another 10 nodes to the cluster. You may wish to have Storm spread out the workers for the running topology so that each node runs 2 workers. One way to do this is to kill the topology and resubmit it, but Storm provides a "rebalance" command that provides an easier way to do this. 
+有的时候你可能希望分散开运行中的topology 的 worker。例如，假定你有一个10节点的集群，每个节点运行4个 worker，然后假定你给这个集群增加了另外的10个节点。你可能会希望让 Storm 分散开运行中的 topology 的 workers 让每个 node 运行2个 worker。一个可用的方法是杀死这个 topology 然后重新提交它，但是 Storm 提供了一个更加简单的 “rebalance” 命令来完成这个任务。
 
-Rebalance will first deactivate the topology for the duration of the message timeout (overridable with the -w flag) and then redistribute the workers evenly around the cluster. The topology will then return to its previous state of activation (so a deactivated topology will still be deactivated and an activated topology will go back to being activated).
+Rebalance 会首先在消息 timeout （可以用 -w 参数改变）的时间内终止 topology ，然后重新把 workers 在集群中平均分配。然后 topology 会返回到它的前一个活跃状态（一个原本终止的 topology 仍旧会在终止状态，一个原本活跃 topology 仍旧会回到活跃状态）。
 
 ### repl
 
-Syntax: `storm repl`
+语法: `storm repl`
 
-Opens up a Clojure REPL with the storm jars and configuration on the classpath. Useful for debugging.
+打开一个包含 storm jars 和配置的 classpath 的 Clojure REPL 以用于调试。
 
 ### classpath
 
-Syntax: `storm classpath`
+语法: `storm classpath`
 
-Prints the classpath used by the storm client when running commands.
+打印出 storm 客户端运行命令时用的 classpath。
 
 ### localconfvalue
 
-Syntax: `storm localconfvalue conf-name`
+语法: `storm localconfvalue conf-name`
 
-Prints out the value for `conf-name` in the local Storm configs. The local Storm configs are the ones in `~/.storm/storm.yaml` merged in with the configs in `defaults.yaml`.
+打印出 `conf-name` 在本地 Storm 配置中的值。这个本地 Storm 配置是由 `~/.storm/storm.yaml` 和 `defaults.yaml` 合并而成。
 
 ### remoteconfvalue
 
-Syntax: `storm remoteconfvalue conf-name`
+语法: `storm remoteconfvalue conf-name`
 
-Prints out the value for `conf-name` in the cluster's Storm configs. The cluster's Storm configs are the ones in `$STORM-PATH/conf/storm.yaml` merged in with the configs in `defaults.yaml`. This command must be run on a cluster machine.
+打印出 `conf-name` 在集群 Storm 配置中的值。 这个集群 Storm 配置是由 `$STORM-PATH/conf/storm.yaml` 和 `defaults.yaml` 合并而成。这个命令必须运行在集群机器上面。
 
 ### nimbus
 
-Syntax: `storm nimbus`
+语法: `storm nimbus`
 
-Launches the nimbus daemon. This command should be run under supervision with a tool like [daemontools](http://cr.yp.to/daemontools.html) or [monit](http://mmonit.com/monit/). See [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) for more information.
+启动 nimbus 守护进程。这个命令必须在类似 [daemontools](http://cr.yp.to/daemontools.html) 或者 [monit](http://mmonit.com/monit/) 的工具的监控下运行。请查看 [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) 以获得更多信息。
 
 ### supervisor
 
-Syntax: `storm supervisor`
+语法: `storm supervisor`
 
-Launches the supervisor daemon. This command should be run under supervision with a tool like [daemontools](http://cr.yp.to/daemontools.html) or [monit](http://mmonit.com/monit/). See [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) for more information.
+启动 supervisor 守护进程。这个命令必须在类似 [daemontools](http://cr.yp.to/daemontools.html) 或者 [monit](http://mmonit.com/monit/) 的工具的监控下运行。请查看 [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) 以获得更多信息。
 
 ### ui
 
-Syntax: `storm ui`
+语法: `storm ui`
 
-Launches the UI daemon. The UI provides a web interface for a Storm cluster and shows detailed stats about running topologies. This command should be run under supervision with a tool like [daemontools](http://cr.yp.to/daemontools.html) or [monit](http://mmonit.com/monit/). See [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) for more information.
+启动 UI 守护进程。这个 UI 为 Storm 集群提供了一个 web 界面来显示运行中的 topologies 的具体状态。这个命令必须在类似 [daemontools](http://cr.yp.to/daemontools.html) 或者 [monit](http://mmonit.com/monit/) 的工具的监控下运行。请查看 [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) 以获得更多信息。
 
 ### drpc
 
-Syntax: `storm drpc`
+语法: `storm drpc`
 
-Launches a DRPC daemon. This command should be run under supervision with a tool like [daemontools](http://cr.yp.to/daemontools.html) or [monit](http://mmonit.com/monit/). See [Distributed RPC](Distributed-RPC.html) for more information.
+启动 DRPC 守护进程。这个命令必须在类似 [daemontools](http://cr.yp.to/daemontools.html) 或者 [monit](http://mmonit.com/monit/) 的工具的监控下运行。请查看 [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) 以获得更多信息。

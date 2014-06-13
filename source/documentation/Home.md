@@ -1,5 +1,5 @@
 ---
-layout: 文档
+layout: documentation
 ---
 Storm 是一个分布式实时计算引擎。 Hadoop 提供了一套批处理的原语，而 Storm 则提供了一套实时计算的原语。Storm 简洁明了，能和任何编程语言一起使用，[应用广泛](https://github.com/apache/incubator-storm/wiki/Powered-By)，而且非常有趣！
 

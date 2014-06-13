@@ -1,5 +1,5 @@
 ---
-layout: 关于
+layout: about
 ---
 
 Storm 从设计上就是支持多语言的。Storm 的核心是一个 [Thrift](http://thrift.apache.org/) [定义](https://github.com/apache/incubator-storm/blob/master/storm-core/src/storm.thrift) 文件，该文件定义并提交 topology。由于 Thrift 本身可以用于任何语言，topology 也可以以任何语言定义和提交。

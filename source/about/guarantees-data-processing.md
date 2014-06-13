@@ -1,5 +1,5 @@
 ---
-layout: 关于
+layout: about
 ---
 
 Storm的一个核心机制就是能够高效跟踪每一个tuple在topology中的lineage，从而保证完整的处理每一个tuple。可以到[这里](/documentation/Guaranteeing-message-processing.html)进一步了解它是如何工作的。

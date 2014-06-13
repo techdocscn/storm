@@ -1,5 +1,5 @@
 ---
-layout: 文档
+layout: documentation
 ---
 
 在这篇文章里，我们将列举一些关于Storm的基本概念以及到相关资源的链接。我们将讨论以下一些概念：
