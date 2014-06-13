@@ -1,12 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-	
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<meta name="description" content="Storm 是一个分布式可容错实时计算系统。类似于 Hadoop 提供的一系列用于批处理的通用原语，Storm 也提供了一组用于进行实时计算的通用原语。Storm 非常简洁，支持多种语言编程，用起来也非常有趣！" />
-	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
-	<title>Storm Documentation</title>
-	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
+  <meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+  <meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
+  <title>Storm Documentation</title>
+  <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -27,47 +27,47 @@
 <div id="top">
 <div id="projecttitle">
 <h2><a href="/" title="Back to main page">Storm</a></h2>
-<p id="slogan">分布式可容错实时计算系统</p>
+<p id="slogan">Distributed and fault-tolerant realtime computation</p>
 </div>
 <div id="menu">
 <ul>
-<li><a href="/about/integrates.html">关于</a></li>
+<li><a href="/about/integrates.html">about</a></li>
 
 <!--
 <li><a href="/blog.html">blog</a></li>
 -->
 
-<li><a href="/documentation/Home.html">文档</a></li>
-<li><a href="/blog.html">博客</a></li>
-<li><a href="/downloads.html">下载</a></li>
-<li><a href="/community.html">社区</a></li>
+<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/blog.html">blog</a></li>
+<li><a href="/downloads.html">downloads</a></li>
+<li><a href="/community.html">community</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div id="sidebar">
   <ul>
-  
-<li><a class="" href="/documentation/Home.html">文档中心</a></li>
-  
-<li><a class="" href="/documentation/Rationale.html">设计理念</a></li>
-  
-<li><a class="" href="/documentation/Tutorial.html">教程</a></li>
-  
-<li><a class="" href="/documentation/Documentation.html">使用手册</a></li>
-  
+
+<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+
+<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+
+<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+
+<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+
 <li><a class="" href="/apidocs/">Javadoc</a></li>
-  
-<li><a class="" href="/documentation/FAQ.html">常见问题解答</a></li>
-  
-<li><a class="" href="/documentation/Contributing-to-Storm.html">参与进来</a></li>
-  
+
+<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+
+<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+
   </ul>
 </div>
 <div id="aboutcontent">
-<p>此页包括所有在 “storm” 命令行客户端下可用得命令。请学习<a href="Setting-up-a-development-environment.html">搭建开发环境</a>中的指令来配置你的 “storm” 客户端与远程集群交流。</p>
+<p>This page describes all the commands that are possible with the “storm” command line client. To learn how to set up your “storm” client to talk to a remote cluster, follow the instructions in <a href="Setting-up-a-development-environment.html">Setting up development environment</a>.</p>
 
-<p>这些命令是:</p>
+<p>These commands are:</p>
 
 <ol>
   <li>jar</li>
@@ -87,92 +87,94 @@
 
 <h3 id="jar">jar</h3>
 
-<p>语法: <code>storm jar topology-jar-path class ...</code></p>
+<p>Syntax: <code>storm jar topology-jar-path class ...</code></p>
 
-<p>以提供的参数运行<code>class</code>中的 main 方法。这些在 <code>~/.storm</code> 中的 storm jars 和配置需要包含在 classpath 中。这个配置过程是为了当 topology 被提交的时候 <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> 会上载在 <code>topology-jar-path</code> 路径下的 jar。</p>
+<p>Runs the main method of <code>class</code> with the specified arguments. The storm jars and configs in <code>~/.storm</code> are put on the classpath. The process is configured so that <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> will upload the jar at <code>topology-jar-path</code> when the topology is submitted.</p>
 
 <h3 id="kill">kill</h3>
 
-<p>语法: <code>storm kill topology-name [-w wait-time-secs]</code></p>
+<p>Syntax: <code>storm kill topology-name [-w wait-time-secs]</code></p>
 
-<p>杀死名字是 <code>topology-name</code> 的 topology 。Storm 会首先在 topology 的消息 timeout 时间内 停止 topology 的 spouts，以便让所有正在处理中的消息可以完成。然后 Storm 会关闭 workers 和清除他们的状态。你可以用 -w 参数来改变 Storm 在停止和关闭之间的等待时间。</p>
+<p>Kills the topology with the name <code>topology-name</code>. Storm will first deactivate the topology’s spouts for the duration of the topology’s message timeout to allow all messages currently being processed to finish processing. Storm will then shutdown the workers and clean up their state. You can override the length of time Storm waits between deactivation and shutdown with the -w flag.</p>
 
 <h3 id="activate">activate</h3>
 
-<p>语法: <code>storm activate topology-name</code></p>
+<p>Syntax: <code>storm activate topology-name</code></p>
 
-<p>激活指定的 topology 的 spouts.</p>
+<p>Activates the specified topology’s spouts.</p>
 
 <h3 id="deactivate">deactivate</h3>
 
-<p>语法: <code>storm deactivate topology-name</code></p>
+<p>Syntax: <code>storm deactivate topology-name</code></p>
 
-<p>停止指定的 topology 的 spouts.</p>
+<p>Deactivates the specified topology’s spouts.</p>
 
 <h3 id="rebalance">rebalance</h3>
 
-<p>语法: <code>storm rebalance topology-name [-w wait-time-secs]</code></p>
+<p>Syntax: <code>storm rebalance topology-name [-w wait-time-secs]</code></p>
 
-<p>有的时候你可能希望分散开运行中的topology 的 worker。例如，假定你有一个10节点的集群，每个节点运行4个 worker，然后假定你给这个集群增加了另外的10个节点。你可能会希望让 Storm 分散开运行中的 topology 的 workers 让每个 node 运行2个 worker。一个可用的方法是杀死这个 topology 然后重新提交它，但是 Storm 提供了一个更加简单的 “rebalance” 命令来完成这个任务。</p>
+<p>Sometimes you may wish to spread out where the workers for a topology are running. For example, let’s say you have a 10 node cluster running 4 workers per node, and then let’s say you add another 10 nodes to the cluster. You may wish to have Storm spread out the workers for the running topology so that each node runs 2 workers. One way to do this is to kill the topology and resubmit it, but Storm provides a “rebalance” command that provides an easier way to do this. </p>
+
+<p>Rebalance will first deactivate the topology for the duration of the message timeout (overridable with the -w flag) and then redistribute the workers evenly around the cluster. The topology will then return to its previous state of activation (so a deactivated topology will still be deactivated and an activated topology will go back to being activated).</p>
 
 <h3 id="repl">repl</h3>
 
-<p>语法: <code>storm repl</code></p>
+<p>Syntax: <code>storm repl</code></p>
 
-<p>打开一个包含 storm jars 和配置的 classpath 的 Clojure REPL 以便于调试。</p>
+<p>Opens up a Clojure REPL with the storm jars and configuration on the classpath. Useful for debugging.</p>
 
 <h3 id="classpath">classpath</h3>
 
-<p>语法: <code>storm classpath</code></p>
+<p>Syntax: <code>storm classpath</code></p>
 
-<p>打印出用在 storm 客户端运行这条命令时的 classpath。</p>
+<p>Prints the classpath used by the storm client when running commands.</p>
 
 <h3 id="localconfvalue">localconfvalue</h3>
 
-<p>语法: <code>storm localconfvalue conf-name</code></p>
+<p>Syntax: <code>storm localconfvalue conf-name</code></p>
 
-<p>打印出 <code>conf-name</code> 在本地 Storm 配置中的值。这个本地 Storm 配置是由 <code>~/.storm/storm.yaml</code> 和 <code>defaults.yaml</code> 合并而成。</p>
+<p>Prints out the value for <code>conf-name</code> in the local Storm configs. The local Storm configs are the ones in <code>~/.storm/storm.yaml</code> merged in with the configs in <code>defaults.yaml</code>.</p>
 
 <h3 id="remoteconfvalue">remoteconfvalue</h3>
 
-<p>语法: <code>storm remoteconfvalue conf-name</code></p>
+<p>Syntax: <code>storm remoteconfvalue conf-name</code></p>
 
-<p>打印出 <code>conf-name</code> 在集群 Storm 配置中的值。 这个集群 Storm 配置是由 <code>$STORM-PATH/conf/storm.yaml</code> 和 <code>defaults.yaml</code> 合并而成。这个命令必须运行在集群机器上面。</p>
+<p>Prints out the value for <code>conf-name</code> in the cluster’s Storm configs. The cluster’s Storm configs are the ones in <code>$STORM-PATH/conf/storm.yaml</code> merged in with the configs in <code>defaults.yaml</code>. This command must be run on a cluster machine.</p>
 
 <h3 id="nimbus">nimbus</h3>
 
-<p>语法: <code>storm nimbus</code></p>
+<p>Syntax: <code>storm nimbus</code></p>
 
-<p>启动 nimbus 守护进程。这个命令必须在类似 <a href="http://cr.yp.to/daemontools.html">daemontools</a> 或者 <a href="http://mmonit.com/monit/">monit</a> 的工具的监控下运行。请查看 <a href="Setting-up-a-Storm-cluster.html">建立 Storm 集群</a> 以获得更多信息。</p>
+<p>Launches the nimbus daemon. This command should be run under supervision with a tool like <a href="http://cr.yp.to/daemontools.html">daemontools</a> or <a href="http://mmonit.com/monit/">monit</a>. See <a href="Setting-up-a-Storm-cluster.html">Setting up a Storm cluster</a> for more information.</p>
 
 <h3 id="supervisor">supervisor</h3>
 
-<p>语法: <code>storm supervisor</code></p>
+<p>Syntax: <code>storm supervisor</code></p>
 
-<p>启动监控守护进程。这个命令必须在类似 <a href="http://cr.yp.to/daemontools.html">daemontools</a> 或者 <a href="http://mmonit.com/monit/">monit</a> 的工具的监控下运行。请查看 <a href="Setting-up-a-Storm-cluster.html">建立 Storm 集群</a> 以获得更多信息。</p>
+<p>Launches the supervisor daemon. This command should be run under supervision with a tool like <a href="http://cr.yp.to/daemontools.html">daemontools</a> or <a href="http://mmonit.com/monit/">monit</a>. See <a href="Setting-up-a-Storm-cluster.html">Setting up a Storm cluster</a> for more information.</p>
 
 <h3 id="ui">ui</h3>
 
-<p>语法: <code>storm ui</code></p>
+<p>Syntax: <code>storm ui</code></p>
 
-<p>启动 UI 守护进程。这个 UI 为 Storm 集群提供了一个 web 界面来显示运行中的 topologies 的具体状态。这个命令必须在类似 <a href="http://cr.yp.to/daemontools.html">daemontools</a> 或者 <a href="http://mmonit.com/monit/">monit</a> 的工具的监控下运行。请查看 <a href="Setting-up-a-Storm-cluster.html">建立 Storm 集群</a> 以获得更多信息。</p>
+<p>Launches the UI daemon. The UI provides a web interface for a Storm cluster and shows detailed stats about running topologies. This command should be run under supervision with a tool like <a href="http://cr.yp.to/daemontools.html">daemontools</a> or <a href="http://mmonit.com/monit/">monit</a>. See <a href="Setting-up-a-Storm-cluster.html">Setting up a Storm cluster</a> for more information.</p>
 
 <h3 id="drpc">drpc</h3>
 
-<p>语法: <code>storm drpc</code></p>
+<p>Syntax: <code>storm drpc</code></p>
 
-<p>Launches a DRPC daemon. 这个命令必须在类似 <a href="http://cr.yp.to/daemontools.html">daemontools</a> 或者 <a href="http://mmonit.com/monit/">monit</a> 的工具的监控下运行。请查看 <a href="Distributed-RPC.html">分布式 RPC</a> 以获得更多信息。</p>
+<p>Launches a DRPC daemon. This command should be run under supervision with a tool like <a href="http://cr.yp.to/daemontools.html">daemontools</a> or <a href="http://mmonit.com/monit/">monit</a>. See <a href="Distributed-RPC.html">Distributed RPC</a> for more information.</p>
 
 </div>
 </div>
 <div id="clear"></div></div>
 <div id="footer">
-	<p>
-	  Apache Storm 是 Apache 软件基金会旗下一孵化中项目。
-	  <a href="http://incubator.apache.org/" style="border: none;">
-	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
-	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
-	  </a>  </p>
+  <p>
+    Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+    <a href="http://incubator.apache.org/" style="border: none;">
+      <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
+          src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
+    </a>  </p>
 </div>
 </div>
 
