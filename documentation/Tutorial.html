@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="description" content="Storm 是一个分布式可容错实时计算系统。类似于 Hadoop 提供的一系列用于批处理的通用原语，Storm 也提供了一组用于进行实时计算的通用原语。Storm 非常简洁，支持多种语言编程，用起来也非常有趣！" />
 	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
 	<title>Storm Documentation</title>
 	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
@@ -67,12 +67,13 @@
 <div id="aboutcontent">
 <p>在这个教程里，你会学会如何创建一个 Storm Topology 以及把它们部署到一个 Storm 集群上。我们主要使用 Java 语言，但是有些例子也会用 Python 来展示 Storm 对多种语言的支持。</p>
 
-<h2 id="preliminaries">初步准备</h2>
-
-<p>This tutorial uses examples from the <a href="http://github.com/nathanmarz/storm-starter">storm-starter</a> project. It’s recommended that you clone the project and follow along with the examples. Read <a href="Setting-up-development-environment.html">Setting up a development environment</a> and <a href="Creating-a-new-Storm-project.html">Creating a new Storm project</a> to get your machine set up. </p>
+<h2 id="preliminaries">准备工作</h2>
+setting
+<p>这个教程会使用 <a href="http://github.com/nathanmarz/storm-starter">storm-starter</a> 项目里面的例子。我们建议你 clone 一个项目并跟着我们的例子走。你可以阅读 <a href="Setting-up-development-environment.html">设置开发环境</a> 以及 <a href="Creating-a-new-Storm-project.html"> 创建新的 Storm 项目 </a> 来设置你的机器。</p>
 
 <h2 id="components-of-a-storm-cluster">Components of a Storm cluster</h2>
 
+<p>一个 Storm 集群表面上和一个 Hadoop 集群非常类似。在 Hadoop 里面你运行的是 “MapReduce Job”，在 Storm 你运行的是 “Topology”。“Job” 和 “Toplogy” 他们本身是非常不一样的。A Storm cluster is superficially similar to a Hadoop cluster. Whereas on Hadoop you run “MapReduce jobs”, on Storm you run “topologies”. “Jobs” and “topologies” themselves are very different – one key difference is that a MapReduce job eventually finishes, whereas a topology processes messages forever (or until you kill it).</p>
 <p>A Storm cluster is superficially similar to a Hadoop cluster. Whereas on Hadoop you run “MapReduce jobs”, on Storm you run “topologies”. “Jobs” and “topologies” themselves are very different – one key difference is that a MapReduce job eventually finishes, whereas a topology processes messages forever (or until you kill it).</p>
 
 <p>There are two kinds of nodes on a Storm cluster: the master node and the worker nodes. The master node runs a daemon called “Nimbus” that is similar to Hadoop’s “JobTracker”. Nimbus is responsible for distributing code around the cluster, assigning tasks to machines, and monitoring for failures.</p>
