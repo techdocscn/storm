@@ -1,28 +1,28 @@
 ---
 layout: documentation
 ---
-This page explains the design details of Storm that make it a fault-tolerant system.
+此页是来解释 Storm 容错系统的设计细节。
 
-## What happens when a worker dies?
+## 当一个 worker 死亡的时候会发生什么？
 
-When a worker dies, the supervisor will restart it. If it continuously fails on startup and is unable to heartbeat to Nimbus, Nimbus will reassign the worker to another machine.
+当一个 work 死亡的时候，supervisor 会重启它。如果它持续启动失败，不能向 Nimbus 发送 heartbeat 的话，Nimbus 会把这个 work 重新分配给其它的机器。
 
-## What happens when a node dies?
+## 当一个 node 死亡的时候会发生什么？
 
-The tasks assigned to that machine will time-out and Nimbus will reassign those tasks to other machines.
+分配给该机器的 tasks 会超时然后 Nimbus 会把这些 tasks 重新分配给其它的机器。
 
-## What happens when Nimbus or Supervisor daemons die?
+## 当 Nimbus 或者 supervisor 守护进程死亡的时候会发生什么？
 
-The Nimbus and Supervisor daemons are designed to be fail-fast (process self-destructs whenever any unexpected situation is encountered) and stateless (all state is kept in Zookeeper or on disk). As described in [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html), the Nimbus and Supervisor daemons must be run under supervision using a tool like daemontools or monit. So if the Nimbus or Supervisor daemons die, they restart like nothing happened.
+Nimbus 和 supervisor 守护进程被设计成快速报错（当任何非期望情况发生的时候，程序自我终止）和无状态（所有的状态都保存在 Zookeeper 中或者在磁盘上）。就像在 [Setting up a Storm cluster](Setting-up-a-Storm-cluster.html) 中说明的一样，Nimbus 和 supervisor 守护进程必须在类似 daemontools 或者 monit 的工具的监控下运行。所以如果 Nimbus 和 supervisor 守护进程死亡的话，他们会重新启动，就像没有任何事情发生一样。
 
-Most notably, no worker processes are affected by the death of Nimbus or the Supervisors. This is in contrast to Hadoop, where if the JobTracker dies, all the running jobs are lost. 
+值得注意的是，没有 worker 程序会受 Nimbus 或者 Supervisors 死亡影响。这和 Hadoop 中如果 JobTracker 死亡，所有的 jobs 会丢失相反，
 
-## Is Nimbus a single point of failure?
+## Nimbus 是一个单点故障吗？
 
-If you lose the Nimbus node, the workers will still continue to function. Additionally, supervisors will continue to restart workers if they die. However, without Nimbus, workers won't be reassigned to other machines when necessary (like if you lose a worker machine). 
+如果你丢失了一个 Nimbus 节点，workers 仍然会继续工作。另外，supervisors 会继续在 workers 死亡的时候重新启动他们。然后，没有 Nimbus 的时候，workders 不会在需要的时候（比如你失去了一个 worker 机器）被重新分配到其它的机器上。
 
-So the answer is that Nimbus is "sort of" a SPOF. In practice, it's not a big deal since nothing catastrophic happens when the Nimbus daemon dies. There are plans to make Nimbus highly available in the future.
+所以答案是 Nimbus 可以算是一种单点故障。但实际上这应该不是一个大问题，因为当 Nimbus 守护进程死亡的时候没什么灾难会发生。有一些让 Nimbus 高可用性的未来计划。
 
-## How does Storm guarantee data processing?
+## Storm 如何保证数据处理？
 
-Storm provides mechanisms to guarantee data processing even if nodes die or messages are lost. See [Guaranteeing message processing](Guaranteeing-message-processing.html) for the details.
+Storm 提供了保证在 nodes 死亡或者 messages 丢失的情况下保证数据处理的机制。细节请查看 [Guaranteeing message processing](Guaranteeing-message-processing.html) 。
