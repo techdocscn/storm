@@ -1,55 +1,56 @@
 ---
 layout: documentation
 ---
-# What makes a running topology: worker processes, executors and tasks
+# 运行中的 topology 有工人进程(worker processes)，执行线程(exectuor)和任务(task)
 
-Storm distinguishes between the following three main entities that are used to actually run a topology in a Storm cluster:
+Storm 分布于以下三个主要的实体，用于运行一个topology在一个 Storm 的集群：
 
-1. Worker processes
-2. Executors (threads)
-3. Tasks
+1. 工人进程
+2. 执行线程
+3. 任务
 
-Here is a simple illustration of their relationships:
+下面是它们的关系的一个简单图示：
+
 
 ![The relationships of worker processes, executors (threads) and tasks in Storm](images/relationships-worker-processes-executors-tasks.png)
 
-A _worker process_ executes a subset of a topology. A worker process belongs to a specific topology and may run one or more executors for one or more components (spouts or bolts) of this topology. A running topology consists of many such processes running on many machines within a Storm cluster.
+一个 _工人进程_ 执行一个 topology 的子集。一个工人进程属于某一个 topology，可以为一个或者多个组件（spouts 或者 bolts）运行一个或者多个执行线程。一个运行中的 topology 包括许多这样的进程，在一个 Storm cluster的许多机器上运行。
 
-An _executor_ is a thread that is spawned by a worker process. It may run one or more tasks for the same component (spout or bolt).
+一个执行线程是由工人进程派生出来的线程。它可以为同一个组件（spouts 或者 bolt）运行一个或者多个任务。
 
-A _task_ performs the actual data processing — each spout or bolt that you implement in your code executes as many tasks across the cluster. The number of tasks for a component is always the same throughout the lifetime of a topology, but the number of executors (threads) for a component can change over time. This means that the following condition holds true: ``#threads ≤ #tasks``. By default, the number of tasks is set to be the same as the number of executors, i.e. Storm will run one task per thread.
+一个任务执行实质上的数据处理－ cluster 上所有每一个被实现的 spout 或者 bolt 执行同样多的任务。在一个 topology 的生命周期内，一个组件的任务数量总是一样的。而一个组件的线程数量可以随着时间而改变。也就是说，“线程数量 <= 任务数量”的条件总是成立的。默认情况下，任务数量与执行线程数量是相同的，即 Storm 将在一个线程中运行一个任务。
 
-# Configuring the parallelism of a topology
+# 配置 topology 的并行量
 
-Note that in Storm’s terminology "parallelism" is specifically used to describe the so-called _parallelism hint_, which means the initial number of executor (threads) of a component. In this document though we use the term "parallelism" in a more general sense to describe how you can configure not only the number of executors but also the number of worker processes and the number of tasks of a Storm topology. We will specifically call out when "parallelism" is used in the normal, narrow definition of Storm.
+要注意到，在 Storm 的专业术语中，“并行量”是专门用来描述所谓的“并行量暗示”的，它表示一个组件的线程初始数量。但在这个文档里，我们用“并行量”宽泛的用法，来描述应该如何配置一个 Storm topology 的线程数量，工人进程数量以及任务数量。当“并行量”被用于 Storm 里面正常的狭隘的定义的时候，我们将具体地说明。
 
-The following sections give an overview of the various configuration options and how to set them in your code. There is more than one way of setting these options though, and the table lists only some of them. Storm currently has the following [order of precedence for configuration settings](Configuration.html): ``defaults.yaml`` < ``storm.yaml`` < topology-specific configuration < internal component-specific configuration < external component-specific configuration.
+下面的章节介绍了各种配置选项的概况以及如何在代码中设置它们。但是，设置这些选项有多种方法，而这个表哥之罗列了一些。Storm 母线有如下[设置配置的优先顺序s](Configuration.html): ``defaults.yaml`` < ``storm.yaml`` < topology 的专属配置 < 内部组件的专属配置 < 外部组件的专属配置。
 
-## Number of worker processes
+## 工人进程的数量
 
-* Description: How many worker processes to create _for the topology_ across machines in the cluster.
-* Configuration option: [TOPOLOGY_WORKERS](/apidocs/backtype/storm/Config.html#TOPOLOGY_WORKERS)
-* How to set in your code (examples):
+* 描述: 为 cluster 里跨机器的 topology，创建多少工人进程
+* 配置选项: [TOPOLOGY_WORKERS](/apidocs/backtype/storm/Config.html#TOPOLOGY_WORKERS)
+* 如何在代码中设置 (示例):
     * [Config#setNumWorkers](/apidocs/backtype/storm/Config.html)
 
-## Number of executors (threads)
+## 执行线程的数量
 
-* Description: How many executors to spawn _per component_.
-* Configuration option: ?
-* How to set in your code (examples):
+* 描述: _每一个组件_派生多少个执行线程.
+* 配置选项: ?
+* 如何在代码中设置 (示例):
     * [TopologyBuilder#setSpout()](/apidocs/backtype/storm/topology/TopologyBuilder.html)
     * [TopologyBuilder#setBolt()](/apidocs/backtype/storm/topology/TopologyBuilder.html)
-    * Note that as of Storm 0.8 the ``parallelism_hint`` parameter now specifies the initial number of executors (not tasks!) for that bolt.
+    * 注意，Storm 0.8 中，“并行量暗示”这个参数表示对那个 bolt 的执行线程的初始数量
 
-## Number of tasks
+## 任务的数量
 
-* Description: How many tasks to create _per component_.
-* Configuration option: [TOPOLOGY_TASKS](/apidocs/backtype/storm/Config.html#TOPOLOGY_TASKS)
-* How to set in your code (examples):
+* 描述: 对_每一个组件_创建多少个任务 _per component_.
+* 配置选项: [TOPOLOGY_TASKS](/apidocs/backtype/storm/Config.html#TOPOLOGY_TASKS)
+* 如何在代码中设置 (示例):
     * [ComponentConfigurationDeclarer#setNumTasks()](/apidocs/backtype/storm/topology/ComponentConfigurationDeclarer.html)
 
 
-Here is an example code snippet to show these settings in practice:
+下面是一段示例如何在实际中设置的代码:
 
 ```java
 topologyBuilder.setBolt("green-bolt", new GreenBolt(), 2)
@@ -57,15 +58,15 @@ topologyBuilder.setBolt("green-bolt", new GreenBolt(), 2)
                .shuffleGrouping("blue-spout);
 ```
 
-In the above code we configured Storm to run the bolt ``GreenBolt`` with an initial number of two executors and four associated tasks. Storm will run two tasks per executor (thread). If you do not explicitly configure the number of tasks, Storm will run by default one task per executor.
+在上述代码中，我们配置 Storm 来运行 "GreenBolt" bolt, 它的初始设置是两个执行线程何四个关联的任务。Storm 将在每个线程上运行两个任务。如果你不明确地设置任务数量，Storm 将默认地在每个线程上运行一个任务。
 
-# Example of a running topology
+# 一个运行中的 topology 的示例
 
-The following illustration shows how a simple topology would look like in operation. The topology consists of three components: one spout called ``BlueSpout`` and two bolts called ``GreenBolt`` and ``YellowBolt``. The components are linked such that ``BlueSpout`` sends its output to ``GreenBolt``, which in turns sends its own output to ``YellowBolt``.
+下面的图示展示了一个简单的 topology 在操作中的样子。这个 topology 包括三个组件：一个 spout 叫做 "BlueSpout" 和 两个 bolts 叫做 “GreenBolt" 和 “YellowBolt"。 这些组件是这样被连接起来的："BlueSpout“ 把它的输出发给 "GreenBolt", “GreenBolt" 再将它自己的输出发给 "YellowBolt"
 
-![Example of a running topology in Storm](images/example-of-a-running-topology.png)
+![Storm 上运行的 topology 的示例](images/example-of-a-running-topology.png)
 
-The ``GreenBolt`` was configured as per the code snippet above whereas ``BlueSpout`` and ``YellowBolt`` only set the parallelism hint (number of executors). Here is the relevant code:
+``GreenBolt`` 就在上述代码中配置好了，而 ``BlueSpout``和d ``YellowBolt`` 只设置了并行量暗示(执行线程的数量)。相关的代码如下:
 
 ```java
 Config conf = new Config();
@@ -87,20 +88,20 @@ StormSubmitter.submitTopology(
     );
 ```
 
-And of course Storm comes with additional configuration settings to control the parallelism of a topology, including:
+当然，Storm 还自带额外的配置设置来控制一个 topology 的并行量，包括：
 
-* [TOPOLOGY_MAX_TASK_PARALLELISM](/apidocs/backtype/storm/Config.html#TOPOLOGY_MAX_TASK_PARALLELISM): This setting puts a ceiling on the number of executors that can be spawned for a single component. It is typically used during testing to limit the number of threads spawned when running a topology in local mode. You can set this option via e.g. [Config#setMaxTaskParallelism()](/apidocs/backtype/storm/Config.html).
+* [TOPOLOGY_MAX_TASK_PARALLELISM](/apidocs/backtype/storm/Config.html#TOPOLOGY_MAX_TASK_PARALLELISM): 这个设置为一个组件所能派生出来的执行线程设了一个上限。这往往被用于测试一个 topology 在本地状态下现在所派生的执行组件数量。你可以设置这个选项，例如. [Config#setMaxTaskParallelism()](/apidocs/backtype/storm/Config.html).
 
-# How to change the parallelism of a running topology
+# 如何来改变一个运行中的 topology 的并行量
 
-A nifty feature of Storm is that you can increase or decrease the number of worker processes and/or executors without being required to restart the cluster or the topology. The act of doing so is called rebalancing.
+Storm 的一个实用的功能是可以增加或者减少工人进程以及执行线程的数量，而不需要重启这个 cluster 或者 topology。这样的做法叫重新平衡。
 
-You have two options to rebalance a topology:
+你有两种选项来重新平衡一个 topology:
 
-1. Use the Storm web UI to rebalance the topology.
-2. Use the CLI tool storm rebalance as described below.
+1. 用 Storm 网页来重新平衡 topology 
+2. 用 CLI 工具，如下。
 
-Here is an example of using the CLI tool:
+这是一个用 CLI 工具的例子:
 
 ```
 # Reconfigure the topology "mytopology" to use 5 worker processes,
@@ -110,7 +111,7 @@ Here is an example of using the CLI tool:
 $ storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
 ```
 
-# References for this article
+# 参考
 
 * [Concepts](Concepts.html)
 * [Configuration](Configuration.html)
