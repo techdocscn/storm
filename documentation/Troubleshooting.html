@@ -3,9 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
-	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
-	<title>Storm Documentation</title>
+	<meta name="description" content="Storm 是一个分布式可容错实时计算系统。类似于 Hadoop 提供的一系列用于批处理的通用原语，Storm 也提供了一组用于进行实时计算的通用原语。Storm 非常简洁，支持多种语言编程，用起来也非常有趣！" />
+	<meta name="keywords" content="storm, hadoop, 实时, 流, mapreduce, java, 计算, 可扩展, 闭包, scala, jvm, 处理" />
+	<title>Storm 文档</title>
 	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
 <script type="text/javascript">
 
@@ -27,20 +27,20 @@
 <div id="top">
 <div id="projecttitle">
 <h2><a href="/" title="Back to main page">Storm</a></h2>
-<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+<p id="slogan">分布式可容错实时计算系统</p>
 </div>
 <div id="menu">
 <ul>
-<li><a href="/about/integrates.html">about</a></li>
+<li><a href="/about/integrates.html">关于</a></li>
 
 <!--
 <li><a href="/blog.html">blog</a></li>
 -->
 
-<li><a href="/documentation/Home.html">documentation</a></li>
+<li><a href="/documentation/Home.html">文档</a></li>
 <li><a href="/blog.html">blog</a></li>
-<li><a href="/downloads.html">downloads</a></li>
-<li><a href="/community.html">community</a></li>
+<li><a href="/downloads.html">下载</a></li>
+<li><a href="/community.html">社区</a></li>
 </ul>
 </div>
 </div>
@@ -48,123 +48,123 @@
 <div id="sidebar">
   <ul>
   
-<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+<li><a class="" href="/documentation/Home.html">文档中心</a></li>
   
-<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+<li><a class="" href="/documentation/Rationale.html">设计理念</a></li>
   
-<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+<li><a class="" href="/documentation/Tutorial.html">教程</a></li>
   
-<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+<li><a class="" href="/documentation/Documentation.html">使用手册</a></li>
   
 <li><a class="" href="/apidocs/">Javadoc</a></li>
   
-<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+<li><a class="" href="/documentation/FAQ.html">常见问题</a></li>
   
-<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+<li><a class="" href="/documentation/Contributing-to-Storm.html">参与进来</a></li>
   
   </ul>
 </div>
 <div id="aboutcontent">
-<h2 id="troubleshooting">Troubleshooting</h2>
+<h2 id="troubleshooting">排除故障</h2>
 
-<p>This page lists issues people have run into when using Storm along with their solutions.</p>
+<p>本页列举一些当人们在他们的解决方案中应用 Storm 时遇到的问题。</p>
 
-<h3 id="worker-processes-are-crashing-on-startup-with-no-stack-trace">Worker processes are crashing on startup with no stack trace</h3>
+<h3 id="worker-processes-are-crashing-on-startup-with-no-stack-trace">Worker 进程在启动时崩溃，并且没有堆栈跟踪（stack trace）</h3>
 
-<p>Possible symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>Topologies work with one node, but workers crash with multiple nodes</li>
+  <li>Topologies 在只有一个结点时正常工作，但 worker 在多结点时崩溃</li>
 </ul>
 
-<p>Solutions:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>You may have a misconfigured subnet, where nodes can’t locate other nodes based on their hostname. ZeroMQ sometimes crashes the process when it can’t resolve a host. There are two solutions:</li>
-  <li>Make a mapping from hostname to IP address in /etc/hosts</li>
-  <li>Set up an internal DNS so that nodes can locate each other based on hostname.</li>
+  <li>你可能有某个子网络没有正确设置，以至于在这个子网中，结点不能根据服务器名称（hostname)找到其他结点。ZeroMQ 在不能解析服务器时会崩溃。有2个解决方案：</li>
+  <li>在 /etc/hosts 中建立服务器名称到 IP 的映射</li>
+  <li>配置一个内部 DNS，来让结点能根据服务器名称找到其他结点。</li>
 </ul>
 
-<h3 id="nodes-are-unable-to-communicate-with-each-other">Nodes are unable to communicate with each other</h3>
+<h3 id="nodes-are-unable-to-communicate-with-each-other">结点间不能互相通信</h3>
 
-<p>Possible symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>Every spout tuple is failing</li>
-  <li>Processing is not working</li>
+  <li>每个 spout 的 tuple 都失败</li>
+  <li>系统无法处理</li>
 </ul>
 
-<p>Solutions:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>Storm doesn’t work with ipv6. You can force ipv4 by adding <code>-Djava.net.preferIPv4Stack=true</code> to the supervisor child options and restarting the supervisor. </li>
-  <li>You may have a misconfigured subnet. See the solutions for <code>Worker processes are crashing on startup with no stack trace</code></li>
+  <li>Storm 不能和 ipv6 一起使用. 你可以在 supervisor child 选项中加入 <code>-Djava.net.preferIPv4Stack=true</code> 来强制使用 ipv4。</li>
+  <li>你可能有某个子网络没有正确设置。参见 <code>Worker 进程在启动时崩溃，并且没有堆栈跟踪（stack trace）</code></li>
 </ul>
 
-<h3 id="topology-stops-processing-tuples-after-awhile">Topology stops processing tuples after awhile</h3>
+<h3 id="topology-stops-processing-tuples-after-awhile">Topology 每过一段时间就停止处理数据</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>Processing works fine for awhile, and then suddenly stops and spout tuples start failing en masse. </li>
+  <li>正常处理一段时间，但是忽然停止工作并且 spout tuples 开始全部失败。</li>
 </ul>
 
-<p>Solutions:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>This is a known issue with ZeroMQ 2.1.10. Downgrade to ZeroMQ 2.1.7.</li>
+  <li>ZeroMQ 2.1.10有一个 bug. 降级到 ZeroMQ 2.1.7.</li>
 </ul>
 
-<h3 id="not-all-supervisors-appear-in-storm-ui">Not all supervisors appear in Storm UI</h3>
+<h3 id="not-all-supervisors-appear-in-storm-ui">有些 supervisors 不在 Storm 用户界面中显示</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>Some supervisor processes are missing from the Storm UI</li>
-  <li>List of supervisors in Storm UI changes on refreshes</li>
+  <li>Storm 用户界面中缺少某些 supervisor 进程</li>
+  <li>Storm 用户界面中的 supervisor 列表在刷新的时候变化</li>
 </ul>
 
-<p>Solutions:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>Make sure the supervisor local dirs are independent (e.g., not sharing a local dir over NFS)</li>
-  <li>Try deleting the local dirs for the supervisors and restarting the daemons. Supervisors create a unique id for themselves and store it locally. When that id is copied to other nodes, Storm gets confused. </li>
+  <li>确保 supervisor 的本地目录相互独立，（比如不可以通过 NFS 公用一个本地目录）</li>
+  <li>尝试删除 supervisor 的本地目录，然后重启守护进程（daemons）。Supervisors 会创建一个唯一的 ID 并本地保存。如果把这个 ID 拷贝给了其他结点，Storm 会出现异常。</li>
 </ul>
 
-<h3 id="multiple-defaultsyaml-found-error">“Multiple defaults.yaml found” error</h3>
+<h3 id="multiple-defaultsyaml-found-error">“Multiple defaults.yaml found” 错误</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>When deploying a topology with “storm jar”, you get this error</li>
+  <li>当使用“Storm jar” 部署 topology 时，出现上述错误</li>
 </ul>
 
-<p>Solution:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>You’re most likely including the Storm jars inside your topology jar. When packaging your topology jar, don’t include the Storm jars as Storm will put those on the classpath for you.</li>
+  <li>最可能的情况是，你在 topology jar 里面包含了 Storm jar。当你打包你的 topology jar时，不要包括 Storm 的jar。Storm 会自动把 Storm jar 加入你的 classpath。</li>
 </ul>
 
-<h3 id="nosuchmethoderror-when-running-storm-jar">“NoSuchMethodError” when running storm jar</h3>
+<h3 id="nosuchmethoderror-when-running-storm-jar">运行 Storm jar 时出现“NoSuchMethodError”</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>When running storm jar, you get a cryptic “NoSuchMethodError”</li>
+  <li>当你运行 Storm jar 时，出现 “NoSuchMethodError”</li>
 </ul>
 
-<p>Solution:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>You’re deploying your topology with a different version of Storm than you built your topology against. Make sure the storm client you use comes from the same version as the version you compiled your topology against.</li>
+  <li>你部署topology 时用了和编译 topology 时不同的版本的 Storm。你需要确保使用来自你编译 topology 时用的 Storm 相同版本的客户端。</li>
 </ul>
 
 <h3 id="kryo-concurrentmodificationexception">Kryo ConcurrentModificationException</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>At runtime, you get a stack trace like the following:</li>
+  <li>运行时程序跑出下列堆栈跟踪：</li>
 </ul>
 
 <p><code>
@@ -197,18 +197,18 @@ Caused by: java.util.ConcurrentModificationException
 	at backtype.storm.serialization.KryoValuesSerializer.serializeInto(KryoValuesSerializer.java:27)
 </code></p>
 
-<p>Solution: </p>
+<p>解决方案： </p>
 
 <ul>
-  <li>This means that you’re emitting a mutable object as an output tuple. Everything you emit into the output collector must be immutable. What’s happening is that your bolt is modifying the object while it is being serialized to be sent over the network.</li>
+  <li>这个情况意味着你用了一个可变的对象（mutable object）来作为输出 tuple。你必须只输出不可变的对象。这里发生的事情是在这个对象被序列化，以便在网络上传输的同时，你的 bolt 试图改变这个对象。</li>
 </ul>
 
-<h3 id="nullpointerexception-from-deep-inside-storm">NullPointerException from deep inside Storm</h3>
+<h3 id="nullpointerexception-from-deep-inside-storm">从 Storm 深层抛出的 NullPointerException</h3>
 
-<p>Symptoms:</p>
+<p>可能的表现：</p>
 
 <ul>
-  <li>You get a NullPointerException that looks something like:</li>
+  <li>有一个如下所示的 NullPointerException：</li>
 </ul>
 
 <p><code>
@@ -231,10 +231,10 @@ Caused by: java.lang.NullPointerException
     ... 6 more
 </code></p>
 
-<p>Solution:</p>
+<p>解决方案：</p>
 
 <ul>
-  <li>This is caused by having multiple threads issue methods on the <code>OutputCollector</code>. All emits, acks, and fails must happen on the same thread. One subtle way this can happen is if you make a <code>IBasicBolt</code> that emits on a separate thread. <code>IBasicBolt</code>’s automatically ack after execute is called, so this would cause multiple threads to use the <code>OutputCollector</code> leading to this exception. When using a basic bolt, all emits must happen in the same thread that runs <code>execute</code>.</li>
+  <li>这是由多线程同时调用<code>OutputCollector</code>的方法引起的. 所有的输出，确认，和失败都必须由同一个线程来完成。你可能不小心创建了一个用另一个线程输出的<code>IBasicBolt</code>。 当执行被调用时，<code>IBasicBolt</code> 会自动确认，以至于不同的线程在使用 <code>OutputCollector</code> ，导致了这个异常。当使用基础的 bolt 时，所有的输出必须由运行<code>execute</code>的线程运行。</li>
 </ul>
 
 </div>
@@ -242,7 +242,7 @@ Caused by: java.lang.NullPointerException
 <div id="clear"></div></div>
 <div id="footer">
 	<p>
-	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  Apache Storm 是 Apache 软件基金会旗下一孵化中项目。
 	  <a href="http://incubator.apache.org/" style="border: none;">
 	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
 	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />
