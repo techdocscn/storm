@@ -1,82 +1,82 @@
 ---
 layout: documentation
 ---
-## Troubleshooting
+## 排除故障
 
-This page lists issues people have run into when using Storm along with their solutions.
+本页列举一些当人们在他们的解决方案中应用 Storm 时遇到的问题。
 
-### Worker processes are crashing on startup with no stack trace
+### Worker 进程在启动时崩溃，并且没有堆栈跟踪（stack trace）
 
-Possible symptoms:
+可能的表现：
  
- * Topologies work with one node, but workers crash with multiple nodes
+ * Topologies 在只有一个结点时正常工作，但 worker 在多结点时崩溃
 
-Solutions:
+解决方案：
 
- * You may have a misconfigured subnet, where nodes can't locate other nodes based on their hostname. ZeroMQ sometimes crashes the process when it can't resolve a host. There are two solutions:
-  * Make a mapping from hostname to IP address in /etc/hosts
-  * Set up an internal DNS so that nodes can locate each other based on hostname.
+ * 你可能有某个子网络没有正确设置，以至于在这个子网中，结点不能根据服务器名称（hostname)找到其他结点。ZeroMQ 在不能解析服务器时会崩溃。有2个解决方案：
+  * 在 /etc/hosts 中建立服务器名称到 IP 的映射
+  * 配置一个内部 DNS，来让结点能根据服务器名称找到其他结点。
   
-### Nodes are unable to communicate with each other
+### 结点间不能互相通信
 
-Possible symptoms:
+可能的表现：
 
- * Every spout tuple is failing
- * Processing is not working
+ * 每个 spout 的 tuple 都失败
+ * 系统无法处理
 
-Solutions:
+解决方案：
 
- * Storm doesn't work with ipv6. You can force ipv4 by adding `-Djava.net.preferIPv4Stack=true` to the supervisor child options and restarting the supervisor. 
- * You may have a misconfigured subnet. See the solutions for `Worker processes are crashing on startup with no stack trace`
+ * Storm 不能和 ipv6 一起使用. 你可以在 supervisor child 选项中加入 `-Djava.net.preferIPv4Stack=true` 来强制使用 ipv4。
+ * 你可能有某个子网络没有正确设置。参见 `Worker 进程在启动时崩溃，并且没有堆栈跟踪（stack trace）`
 
-### Topology stops processing tuples after awhile
+### Topology 每过一段时间就停止处理数据
 
-Symptoms:
+可能的表现：
 
- * Processing works fine for awhile, and then suddenly stops and spout tuples start failing en masse. 
+ * 正常处理一段时间，但是忽然停止工作并且 spout tuples 开始全部失败。
  
-Solutions:
+解决方案：
 
- * This is a known issue with ZeroMQ 2.1.10. Downgrade to ZeroMQ 2.1.7.
+ * ZeroMQ 2.1.10有一个 bug. 降级到 ZeroMQ 2.1.7。
  
-### Not all supervisors appear in Storm UI
+### 有些 supervisors 不在 Storm 用户界面中显示
 
-Symptoms:
+可能的表现：
  
- * Some supervisor processes are missing from the Storm UI
- * List of supervisors in Storm UI changes on refreshes
+ * Storm 用户界面中缺少某些 supervisor 进程
+ * Storm 用户界面中的 supervisor 列表在刷新的时候变化
 
-Solutions:
+解决方案：
 
- * Make sure the supervisor local dirs are independent (e.g., not sharing a local dir over NFS)
- * Try deleting the local dirs for the supervisors and restarting the daemons. Supervisors create a unique id for themselves and store it locally. When that id is copied to other nodes, Storm gets confused. 
+ * 确保 supervisor 的本地目录相互独立，（比如不可以通过 NFS 公用一个本地目录）
+ * 尝试删除 supervisor 的本地目录，然后重启守护进程（daemons）。Supervisors 会创建一个唯一的 ID 并本地保存。如果把这个 ID 拷贝给了其他结点，Storm 会出现异常。
 
-### "Multiple defaults.yaml found" error
+### “Multiple defaults.yaml found” 错误
 
-Symptoms:
+可能的表现：
 
- * When deploying a topology with "storm jar", you get this error
+ * 当使用“Storm jar” 部署 topology 时，出现上述错误
 
-Solution:
+解决方案：
 
- * You're most likely including the Storm jars inside your topology jar. When packaging your topology jar, don't include the Storm jars as Storm will put those on the classpath for you.
+ * 最可能的情况是，你在 topology jar 里面包含了 Storm jar。当你打包你的 topology jar时，不要包括 Storm 的jar。Storm 会自动把 Storm jar 加入你的 classpath。
 
-### "NoSuchMethodError" when running storm jar
+### 运行 Storm jar 时出现“NoSuchMethodError”
 
-Symptoms:
+可能的表现：
 
- * When running storm jar, you get a cryptic "NoSuchMethodError"
+ * 当你运行 Storm jar 时，出现 “NoSuchMethodError”
 
-Solution:
+解决方案：
 
- * You're deploying your topology with a different version of Storm than you built your topology against. Make sure the storm client you use comes from the same version as the version you compiled your topology against.
+ * 你部署topology 时用了和编译 topology 时不同的版本的 Storm。你需要确保使用来自你编译 topology 时用的 Storm 相同版本的客户端。
 
 
 ### Kryo ConcurrentModificationException
 
-Symptoms:
+可能的表现：
 
- * At runtime, you get a stack trace like the following:
+ * 运行时程序跑出下列堆栈跟踪：
 
 ```
 java.lang.RuntimeException: java.util.ConcurrentModificationException
@@ -108,16 +108,16 @@ Caused by: java.util.ConcurrentModificationException
 	at backtype.storm.serialization.KryoValuesSerializer.serializeInto(KryoValuesSerializer.java:27)
 ```
 
-Solution: 
+解决方案： 
 
- * This means that you're emitting a mutable object as an output tuple. Everything you emit into the output collector must be immutable. What's happening is that your bolt is modifying the object while it is being serialized to be sent over the network.
+ * 这个情况意味着你用了一个可变的对象（mutable object）来作为输出 tuple。你必须只输出不可变的对象。这里发生的事情是在这个对象被序列化，以便在网络上传输的同时，你的 bolt 试图改变这个对象。
 
 
-### NullPointerException from deep inside Storm
+### 从 Storm 深层抛出的 NullPointerException
 
-Symptoms:
+可能的表现：
 
- * You get a NullPointerException that looks something like:
+ * 有一个如下所示的 NullPointerException：
 
 ```
 java.lang.RuntimeException: java.lang.NullPointerException
@@ -139,6 +139,6 @@ Caused by: java.lang.NullPointerException
     ... 6 more
 ```
 
-Solution:
+解决方案：
 
- * This is caused by having multiple threads issue methods on the `OutputCollector`. All emits, acks, and fails must happen on the same thread. One subtle way this can happen is if you make a `IBasicBolt` that emits on a separate thread. `IBasicBolt`'s automatically ack after execute is called, so this would cause multiple threads to use the `OutputCollector` leading to this exception. When using a basic bolt, all emits must happen in the same thread that runs `execute`.
+ * 这是由多线程同时调用`OutputCollector`的方法引起的. 所有的输出，确认，和失败都必须由同一个线程来完成。你可能不小心创建了一个用另一个线程输出的`IBasicBolt`。 当执行被调用时，`IBasicBolt` 会自动确认，以至于不同的线程在使用 `OutputCollector` ，导致了这个异常。当使用基础的 bolt 时，所有的输出必须由运行`execute`的线程运行。
