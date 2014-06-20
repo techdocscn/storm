@@ -2,8 +2,8 @@
 layout: about
 ---
 
-Storm clusters are easy to deploy, requiring a minimum of setup and configuration to get up and running. Storm's out of the box configurations are suitable for production. Read more about how to deploy a Storm cluster [here](/documentation/Setting-up-a-Storm-cluster.html).
+部署 Storm 集群很容易，它只需要很少的设置和配置就可以搭建并运行起来。 Storm 自带的配置就适合产品运行。 要了解更多如何实现一个 Storm 集群请看 [这里](/documentation/Setting-up-a-Storm-cluster.html).
 
-If you're on EC2, the [storm-deploy](https://github.com/nathanmarz/storm-deploy) project can provision, configure, and install a Storm cluster from scratch at just the click of a button.
+如果你使用 EC2, 那么 [storm-deploy](https://github.com/nathanmarz/storm-deploy) 项目可以非常容易的帮助你从无到有的规范，配置和搭建一个 Storm 集群。
 
-Additionally, Storm is easy to operate once deployed. Storm has been designed to be [extremely robust](/about/fault-tolerant.html) – the cluster will just keep on running, month after month.
+而且，一旦搭建好，Storm 非常容易操作。 Storm 被设计的 [及其稳定](/about/fault-tolerant.html) – 集群可以月复一月的持续运行。
