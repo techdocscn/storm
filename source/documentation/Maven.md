@@ -1,7 +1,7 @@
 ---
 layout: documentation
 ---
-To develop topologies, you'll need the Storm jars on your classpath. You should either include the unpacked jars in the classpath for your project or use Maven to include Storm as a development dependency. Storm is hosted on Clojars (a Maven repository). To include Storm in your project as a development dependency, add the following to your pom.xml:
+开发 topologies ，你需要把 Storm jar 包含进你项目的 classpath。你应该或者把解压缩的jar包含到你项目的 classpath 中，或者用 Maven 来把 Strom 作为一个开发依赖项。Storm 承载在 Clojars (一个 Maven 代码库). 向你项目的 pom.xml 中添加以下代码来把 Storm 包含进你的项目：
 
 ```xml
 <repository>
@@ -19,9 +19,9 @@ To develop topologies, you'll need the Storm jars on your classpath. You should 
 </dependency>
 ```
 
-[Here's an example](https://github.com/nathanmarz/storm-starter/blob/master/m2-pom.xml) of a pom.xml for a Storm project.
+[这里](https://github.com/nathanmarz/storm-starter/blob/master/m2-pom.xml)有一个 Storm 项目的 pom.xml 作为例子。
 
-If Maven isn't your thing, check out [leiningen](https://github.com/technomancy/leiningen). Leiningen is a build tool for Clojure, but it can be used for pure Java projects as well. Leiningen makes builds and dependency management using Maven dead-simple. Here's an example project.clj for a pure-Java Storm project:
+如果你不喜欢 Maven，请看 [leiningen](https://github.com/technomancy/leiningen). Leiningen 是一个 Clojure 的构建工具, 但是它也可以用在 Java 程序上。Leiningen 使得用 Maven 来构建项目和管理依赖项超级简单。这里有一个单纯的 Java Storm 项目的 project.clj 的例子：
 
 ```clojure
 (defproject storm-starter "0.0.1-SNAPSHOT"
@@ -34,23 +34,23 @@ If Maven isn't your thing, check out [leiningen](https://github.com/technomancy/
                      ])
 ```
 
-You can fetch dependencies using `lein deps`, build the project with `lein compile`, and make a jar suitable for submitting to a cluster with `lein uberjar`.
+你可以用 `lein deps` 来抓取依赖项， `lein compile` 来构建项目, `lein uberjar` 来构建一个可以提交到集群上的 jar.
 
-### Using Storm as a library
+### 把 Storm 当做库使用
 
-If you want to use Storm as a library (e.g., use the Distributed RPC client) and have the Storm dependency jars be distributed with your application, there's a separate Maven dependency called "storm/storm-lib". The only difference between this dependency and the usual "storm/storm" is that storm-lib does not have any logging configured.
+如果你想把 Storm 作为一个库来使用（例如使用分布式 RPC 客户端），让 Storm jar 依赖项随着你的程序分布，你可以使用另外一个 Maven 依赖项："storm/storm-lib"。 这个依赖项和常规的 "storm/storm" 唯一的区别是 storm-lib 不包括任何日志的设置。
 
-### Developing Storm
+### 开发 Storm
 
-You will want to
+你需要：
 
-	bash ./bin/install_zmq.sh   # install the jzmq dependency
+	bash ./bin/install_zmq.sh   # 安装 jzmq 依赖项
 	lein sub install
 
-Build javadocs with
+构建 javadocs：
 
 	bash ./bin/javadoc.sh
 
-### Building a Storm Release
+### 构建 Storm 的一个正式版本
 
-Use the file `bin/build_release.sh` to make a zipfile like the ones you would download (and like what the bin files require in order to run daemons).
+使用文件 `bin/build_release.sh` 来构建一个和下载得来一样的压缩文件 （和为了运行后台程序所需要的二进制文件一样）。
