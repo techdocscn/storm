@@ -1,31 +1,31 @@
 ---
 layout: documentation
 ---
-The past decade has seen a revolution in data processing. MapReduce, Hadoop, and related technologies have made it possible to store and process data at scales previously unthinkable. Unfortunately, these data processing technologies are not realtime systems, nor are they meant to be. There's no hack that will turn Hadoop into a realtime system; realtime data processing has a fundamentally different set of requirements than batch processing.
+数据处理在过去的十几年里发生了革命性的变化。MapReduce, Hadoop, 以及其他相关的技术使得处理以前无法想象的规模的数据成为可能。很不幸，这些数据处理的技术从设计上就不是为了实时处理。无论怎样，Hadoop 都没办法被 hack 成为实时系统；实时数据处理从根本上与批处理有着不同的需求。
 
-However, realtime data processing at massive scale is becoming more and more of a requirement for businesses. The lack of a "Hadoop of realtime" has become the biggest hole in the data processing ecosystem.
+然而，对于公司来说，能够实时的处理超大规模数据已经迫在眉睫。“实时 Hadoop”的缺乏已经成了数据处理生物链中最大的空缺。
 
-Storm fills that hole.
+Storm 应运而生。
 
-Before Storm, you would typically have to manually build a network of queues and workers to do realtime processing. Workers would process messages off a queue, update databases, and send new messages to other queues for further processing. Unfortunately, this approach has serious limitations:
+在 Storm 之前, 你一般需要手动的建立一个 queue 和 worker 的网络来做实时处理。每个 worker 要从 queue 中摘除一个消息， 更新数据库， 再发新的消息到其他的queue来对数据做更进一步的处理。很不幸，这个方法存在以下局限性：
 
-1. **Tedious**: You spend most of your development time configuring where to send messages, deploying workers, and deploying intermediate queues. The realtime processing logic that you care about corresponds to a relatively small percentage of your codebase.
-2. **Brittle**: There's little fault-tolerance. You're responsible for keeping each worker and queue up.
-3. **Painful to scale**: When the message throughput get too high for a single worker or queue, you need to partition how the data is spread around. You need to reconfigure the other workers to know the new locations to send messages. This introduces moving parts and new pieces that can fail.
+1. **乏味**: 你需要用开发时间的绝大部分配置向哪儿发送消息，部署 workers， 部署中间的queue。你所关心的实时数据处理逻辑只占项目代码相对很小的一部分。
+2. **脆弱**: 容错率极低。你需要保证每个 worker 和 queue 的正常运行。
+3. **极难扩展**: 当某一个 worker 或者 queue 的吞吐率变得很高的时候，你需要通过分割来分散数据。你需要重新配置其他的 workers 让他们向新的地方发送消息。这就向系统中引入了新的可能失效的部分。
 
-Although the queues and workers paradigm breaks down for large numbers of messages, message processing is clearly the fundamental paradigm for realtime computation. The question is: how do you do it in a way that doesn't lose data, scales to huge volumes of messages, and is dead-simple to use and operate?
+虽然 queue 和 worker 的范例在消息量大的情况下表现不甚理想，消息处理（message processing）仍然是实时计算的根本。问题是，怎样来协调这其中的关系，使得系统不会丢失数据，可以扩展到超高数据量，并且使用和操作起来超级简单？
 
-Storm satisfies these goals. 
+Storm 可以达到这些目标！ 
 
-## Why Storm is important
+## 为神马 Storm 如此重要
 
-Storm exposes a set of primitives for doing realtime computation. Like how MapReduce greatly eases the writing of parallel batch processing, Storm's primitives greatly ease the writing of parallel realtime computation.
+Storm 为实时计算提供了一系列的原语。类似于 MapReduce 极大地简化了编写并行批处理，Storm 的原语极大地简化了编写并行实时计算。
 
-The key properties of Storm are:
+Storm 的关键特性有：
 
-1. **Extremely broad set of use cases**: Storm can be used for processing messages and updating databases (stream processing), doing a continuous query on data streams and streaming the results into clients (continuous computation), parallelizing an intense query like a search query on the fly (distributed RPC), and more. Storm's small set of primitives satisfy a stunning number of use cases.
-2. **Scalable**: Storm scales to massive numbers of messages per second. To scale a topology, all you have to do is add machines and increase the parallelism settings of the topology. As an example of Storm's scale, one of Storm's initial applications processed 1,000,000 messages per second on a 10 node cluster, including hundreds of database calls per second as part of the topology. Storm's usage of Zookeeper for cluster coordination makes it scale to much larger cluster sizes.
-3. **Guarantees no data loss**: A realtime system must have strong guarantees about data being successfully processed. A system that drops data has a very limited set of use cases. Storm guarantees that every message will be processed, and this is in direct contrast with other systems like S4. 
-4. **Extremely robust**: Unlike systems like Hadoop, which are notorious for being difficult to manage, Storm clusters just work. It is an explicit goal of the Storm project to make the user experience of managing Storm clusters as painless as possible.
-5. **Fault-tolerant**: If there are faults during execution of your computation, Storm will reassign tasks as necessary. Storm makes sure that a computation can run forever (or until you kill the computation).
-6. **Programming language agnostic**: Robust and scalable realtime processing shouldn't be limited to a single platform. Storm topologies and processing components can be defined in any language, making Storm accessible to nearly anyone.
+1. **超级宽泛的应用场景**: Storm 可以处理消息和更新数据库（流处理）；连续查询（continuous query）数据流，并把结果流传给下游用户（连续计算）；把某些计算量大的查询并行化，比如即时搜索（分布式 RPC ）等等。Storm 很小的原语集能满足数量惊人的应用场景。
+2. **可扩展性**: Storm 可以扩展到处理每秒超大量消息。如果要扩展 topology ，你只需要向 topology 里添加更多的机器，并且调高设定中得并发数。比如，一个 Storm 最初的项目仅用了10个结点，就处理了每秒1,000,000条消息。这些消息包括每秒钟几百个的数据库调用。Storm 在 Zookeeper 中起到协调集群的作用，使得集群扩展到更大的规模。
+3. **保证无数据丢失**: 实时系统必须保证数据的成功处理。可能丢失数据的系统的应用场景非常受限制。Storm 保证每条消息都得到处理，这与其他的系统，比如S4，形成鲜明对比。 
+4. **超级健壮**: Storm 集群很少出错，不像 Hadoop 那样的因为难于管理而臭名远扬的系统。让管理 Storm 集群的用户体验尽可能无痛是 Storm 明确的目标。
+5. **容错**: 如果在计算过程中发生了错误，Storm 会按需要重新分派任务。Storm 会保证计算可以一直运行，直到你终止运算为止。
+6. **与编程语言无关**: 健壮的可扩展的实时处理不应该被局限于某一个平台。Storm topology 和处理组件可以用任意语言定义，这使得 Storm 可以被几乎所有人使用。
