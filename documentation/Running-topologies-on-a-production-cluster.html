@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-	<meta name="description" content="Storm is a distributed and fault-tolerant realtime computation system. Similar to how Hadoop provides a set of general primitives for doing batch processing, Storm provides a set of general primitives for doing realtime computation. Storm is simple, can be used with any programming language, and is a lot of fun to use!" />
+	<meta name="description" content="Storm 是一个分布式可容错实时计算系统。类似于 Hadoop 提供的一系列用于批处理的通用原语，Storm 也提供了一组用于进行实时计算的通用原语。Storm 非常简洁，支持多种语言编程，用起来也非常有趣！" />
 	<meta name="keywords" content="storm, hadoop, realtime, stream, mapreduce, java, computation, scalability, clojure, scala, jvm, processing" />
 	<title>Storm Documentation</title>
 	<link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
@@ -26,21 +26,21 @@
 <div id="wrap">
 <div id="top">
 <div id="projecttitle">
-<h2><a href="/" title="Back to main page">Storm</a></h2>
-<p id="slogan">Distributed and fault-tolerant realtime computation</p>
+<h2><a href="/" title="回到首页">Storm</a></h2>
+<p id="slogan">分布式可容错实时计算系统</p>
 </div>
 <div id="menu">
 <ul>
-<li><a href="/about/integrates.html">about</a></li>
+<li><a href="/about/integrates.html">关于</a></li>
 
 <!--
 <li><a href="/blog.html">blog</a></li>
 -->
 
-<li><a href="/documentation/Home.html">documentation</a></li>
-<li><a href="/blog.html">blog</a></li>
-<li><a href="/downloads.html">downloads</a></li>
-<li><a href="/community.html">community</a></li>
+<li><a href="/documentation/Home.html">文档</a></li>
+<li><a href="/blog.html">博客</a></li>
+<li><a href="/downloads.html">下载</a></li>
+<li><a href="/community.html">社区</a></li>
 </ul>
 </div>
 </div>
@@ -48,28 +48,28 @@
 <div id="sidebar">
   <ul>
   
-<li><a class="" href="/documentation/Home.html">Documentation Home</a></li>
+<li><a class="" href="/documentation/Home.html">文档中心</a></li>
   
-<li><a class="" href="/documentation/Rationale.html">Rationale</a></li>
+<li><a class="" href="/documentation/Rationale.html">设计理念</a></li>
   
-<li><a class="" href="/documentation/Tutorial.html">Tutorial</a></li>
+<li><a class="" href="/documentation/Tutorial.html">教程</a></li>
   
-<li><a class="" href="/documentation/Documentation.html">Manual</a></li>
+<li><a class="" href="/documentation/Documentation.html">使用手册</a></li>
   
 <li><a class="" href="/apidocs/">Javadoc</a></li>
   
-<li><a class="" href="/documentation/FAQ.html">FAQ</a></li>
+<li><a class="" href="/documentation/FAQ.html">常见问题解答</a></li>
   
-<li><a class="" href="/documentation/Contributing-to-Storm.html">Contributing</a></li>
+<li><a class="" href="/documentation/Contributing-to-Storm.html">参与进来</a></li>
   
   </ul>
 </div>
 <div id="aboutcontent">
-<p>Running topologies on a production cluster is similar to running in <a href="Local-mode.html">Local mode</a>. Here are the steps:</p>
+<p>在产品集群上运行 topology 和在<a href="Local-mode.html">本地模式</a>运行很相似。有以下步骤：</p>
 
-<p>1) Define the topology (Use <a href="/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder</a> if defining using Java)</p>
+<p>1) 定义 topology（如果使用 Java 定义可用 <a href="/apidocs/backtype/storm/topology/TopologyBuilder.html">TopologyBuilder</a>）</p>
 
-<p>2) Use <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> to submit the topology to the cluster. <code>StormSubmitter</code> takes as input the name of the topology, a configuration for the topology, and the topology itself. For example:</p>
+<p>2) 使用 <a href="/apidocs/backtype/storm/StormSubmitter.html">StormSubmitter</a> 来把 topology 提交到集群。<code>StormSubmitter</code> 的输入包括 topology 的名字、topology 的配置对象，以及 topology 本身。比如：</p>
 
 <p><code>java
 Config conf = new Config();
@@ -78,9 +78,9 @@ conf.setMaxSpoutPending(5000);
 StormSubmitter.submitTopology("mytopology", conf, topology);
 </code></p>
 
-<p>3) Create a jar containing your code and all the dependencies of your code (except for Storm – the Storm jars will be added to the classpath on the worker nodes).</p>
+<p>3) 创建一个包含了你的代码和所有依赖库的 jar（除了 Storm 本身 —— Storm 的 jar 会被自动加到工人结点的 classpath 中去）。</p>
 
-<p>If you’re using Maven, the <a href="http://maven.apache.org/plugins/maven-assembly-plugin/">Maven Assembly Plugin</a> can do the packaging for you. Just add this to your pom.xml:</p>
+<p>如果你使用 Maven，<a href="http://maven.apache.org/plugins/maven-assembly-plugin/">Maven Assembly Plugin</a> 可以帮你打包。把下面一段加到你的 pom.xml 即可：</p>
 
 <p>```xml</p>
 <plugin>
@@ -97,54 +97,54 @@ StormSubmitter.submitTopology("mytopology", conf, topology);
     </configuration>
   </plugin>
 <p>```
-Then run mvn assembly:assembly to get an appropriately packaged jar. Make sure you <a href="http://maven.apache.org/plugins/maven-assembly-plugin/examples/single/including-and-excluding-artifacts.html">exclude</a> the Storm jars since the cluster already has Storm on the classpath.</p>
+然后运行 mvn assembly:assembly 来得到打包就绪的 jar。请确保你把 Storm 的 jar 都 <a href="http://maven.apache.org/plugins/maven-assembly-plugin/examples/single/including-and-excluding-artifacts.html">exclude</a> 出去了，因为集群已经在它的 classpath 上有 Storm 了。</p>
 
-<p>4) Submit the topology to the cluster using the <code>storm</code> client, specifying the path to your jar, the classname to run, and any arguments it will use:</p>
+<p>4) 使用 <code>storm</code> 客户端把 topology 提交到集群，指定你的 jar 的路径，要运行的类名，以及任何需要的参数：</p>
 
 <p><code>storm jar path/to/allmycode.jar org.me.MyTopology arg1 arg2 arg3</code></p>
 
-<p><code>storm jar</code> will submit the jar to the cluster and configure the <code>StormSubmitter</code> class to talk to the right cluster. In this example, after uploading the jar <code>storm jar</code> calls the main function on <code>org.me.MyTopology</code> with the arguments “arg1”, “arg2”, and “arg3”.</p>
+<p><code>storm jar</code> 会把 jar 提交到集群并配置 <code>StormSubmitter</code> 类来和正确的集群通信。在这个例子里，在上传了之后，<code>storm jar</code> 会在 <code>org.me.MyTopology</code> 上用参数 “arg1”、“arg2” 和 “arg3” 来调用主函数。</p>
 
-<p>You can find out how to configure your <code>storm</code> client to talk to a Storm cluster on <a href="Setting-up-development-environment.html">Setting up development environment</a>.</p>
+<p>你可以在 <a href="Setting-up-development-environment.html">设置开发环境</a> 找到如何配置你的 <code>storm</code> 客户端使其和特定的 Storm 集群通信的介绍。</p>
 
-<h3 id="common-configurations">Common configurations</h3>
+<h3 id="common-configurations">常见配置</h3>
 
-<p>There are a variety of configurations you can set per topology. A list of all the configurations you can set can be found <a href="/apidocs/backtype/storm/Config.html">here</a>. The ones prefixed with “TOPOLOGY” can be overridden on a topology-specific basis (the other ones are cluster configurations and cannot be overridden). Here are some common ones that are set for a topology:</p>
+<p>有一些配置你可以按 topology 设定。你可以在 <a href="/apidocs/backtype/storm/Config.html">这里</a> 找到所有这些配置。那些 “TOPOLOGY” 开头的都能够按 topology 重载（其它的是集群配置，不能被重载）。这里是一些常见的 topology 设置：</p>
 
 <ol>
-  <li><strong>Config.TOPOLOGY_WORKERS</strong>: This sets the number of worker processes to use to execute the topology. For example, if you set this to 25, there will be 25 Java processes across the cluster executing all the tasks. If you had a combined 150 parallelism across all components in the topology, each worker process will have 6 tasks running within it as threads.</li>
-  <li><strong>Config.TOPOLOGY_ACKERS</strong>: This sets the number of tasks that will track tuple trees and detect when a spout tuple has been fully processed. Ackers are an integral part of Storm’s reliability model and you can read more about them on <a href="Guaranteeing-message-processing.html">Guaranteeing message processing</a>.</li>
-  <li><strong>Config.TOPOLOGY_MAX_SPOUT_PENDING</strong>: This sets the maximum number of spout tuples that can be pending on a single spout task at once (pending means the tuple has not been acked or failed yet). It is highly recommended you set this config to prevent queue explosion.</li>
-  <li><strong>Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS</strong>: This is the maximum amount of time a spout tuple has to be fully completed before it is considered failed. This value defaults to 30 seconds, which is sufficient for most topologies. See <a href="Guaranteeing-message-processing.html">Guaranteeing message processing</a> for more information on how Storm’s reliability model works.</li>
-  <li><strong>Config.TOPOLOGY_SERIALIZATIONS</strong>: You can register more serializers to Storm using this config so that you can use custom types within tuples.</li>
+  <li><strong>Config.TOPOLOGY_WORKERS</strong>：这设置用于执行 topology 的工人进程的数量。比如，如果你把这个设置为 25，整个集群就会有 25 个 Java 进程处理所有的任务。如果你的 topology 的所有组件合起来有 150 的并行量，每个工人进程会有 6 个任务以线程方式执行。</li>
+  <li><strong>Config.TOPOLOGY_ACKERS</strong>：这个设置用于跟踪 tuple 树并检测一个 spout tuple 是否完整处理的任务数量。Acker 是 Storm 可靠性模型的必要组成部分，你可以在 <a href="Guaranteeing-message-processing.html">消息处理保证</a>一文中读到更多。</li>
+  <li><strong>Config.TOPOLOGY_MAX_SPOUT_PENDING</strong>：这个设置了能够的同时等待单个 spout 任务的 spout tuple 的最大数量（等待则意味着 tuple 还没有被 ack 或者 fail）。我们强烈建议你设置此参数以防队列爆炸。</li>
+  <li><strong>Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS</strong>：这是一个 spout tuple 能够在被认定为失败前被完全处理的时间长度。默认值为 30 秒，对于大多数 topology 都足够了了。见 <a href="Guaranteeing-message-processing.html">消息处理保证</a> 一文获取关于 Storm 可靠性模型如何工作的更多信息。</li>
+  <li><strong>Config.TOPOLOGY_SERIALIZATIONS</strong>：你可以使用这个设置来把更多 serializer （序列化器）注册到 Storm 以便在 tuple 中使用自定义类型。</li>
 </ol>
 
-<h3 id="killing-a-topology">Killing a topology</h3>
+<h3 id="killing-a-topology">杀死 topology</h3>
 
-<p>To kill a topology, simply run:</p>
+<p>要杀掉一个 topology，只需运行：</p>
 
 <p><code>storm kill {stormname}</code></p>
 
-<p>Give the same name to <code>storm kill</code> as you used when submitting the topology.</p>
+<p>把你在提交 topology 的时候用的名字告诉 <code>storm kill</code> 即可。</p>
 
-<p>Storm won’t kill the topology immediately. Instead, it deactivates all the spouts so that they don’t emit any more tuples, and then Storm waits Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS seconds before destroying all the workers. This gives the topology enough time to complete any tuples it was processing when it got killed.</p>
+<p>Storm 不会马上杀死一个 topology。取而代之，它会停用 spout 所以它们不会再输出更多的 tuple，然后 Storm 在毁掉所有工人之前先等待 Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS 秒。这使得 topology 有足够的时间结束处理它被杀时正在处理的 tuple。</p>
 
-<h3 id="updating-a-running-topology">Updating a running topology</h3>
+<h3 id="updating-a-running-topology">更新一个运行中的 topology</h3>
 
-<p>To update a running topology, the only option currently is to kill the current topology and resubmit a new one. A planned feature is to implement a <code>storm swap</code> command that swaps a running topology with a new one, ensuring minimal downtime and no chance of both topologies processing tuples at the same time. </p>
+<p>要更新一个运行中的 topology，现在唯一的选项是先杀掉当前 topology 再提交一个新的。我们计划实现一个 <code>storm swap</code> 新功能，它可以把一个运行中的 topology 置换成一个新的，并保证停机时间尽可能少，且两个 topology 不会同时处理在 tuple。</p>
 
-<h3 id="monitoring-topologies">Monitoring topologies</h3>
+<h3 id="monitoring-topologies">监视 topology</h3>
 
-<p>The best place to monitor a topology is using the Storm UI. The Storm UI provides information about errors happening in tasks and fine-grained stats on the throughput and latency performance of each component of each running topology.</p>
+<p>监视一个 topology 的最佳地点是 Storm UI。 Storm UI 提供了关于任务中发生的错误以及关于当前运行的 topology 中的每个组件的吞吐量和延迟的详细统计数据的信息. </p>
 
-<p>You can also look at the worker logs on the cluster machines.</p>
+<p>你也可以查看集群的机器上工人进程的日志。</p>
 
 </div>
 </div>
 <div id="clear"></div></div>
 <div id="footer">
 	<p>
-	  Apache Storm is an effort undergoing incubation at The Apache Software Foundation.
+	  Apache Storm 是 Apache 软件基金会旗下一孵化中项目。
 	  <a href="http://incubator.apache.org/" style="border: none;">
 	    <img style="vertical-align: middle; float: right; margin-bottom: 15px;"
 	        src="/images/incubator-logo.png" alt="Apache Incubator" title="Apache Incubator" />

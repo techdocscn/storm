@@ -1,39 +1,38 @@
 ---
 layout: documentation
 ---
-This page outlines what you need to do to get a Storm development environment set up. In summary, the steps are:
+这篇文章将告诉你如何设置一个 Storm 的开发环境。简而言之，我们需要如下步骤：
 
-1. Download a [Storm release](..//downloads.html) , unpack it, and put the unpacked `bin/` directory on your PATH
-2. To be able to start and stop topologies on a remote cluster, put the cluster information in `~/.storm/storm.yaml`
+1. 下载一个 [Storm 的发布](..//downloads.html)，解包，然后将解包后的目录下 `bin/` 子目录放到你的环境变量 PATH 中
+2. 为了使你能够在一个远程的集群（cluster）启动和停止 topology，你需要将该集群的信息放到 `~/.storm/storm.yaml` 文件中。 
 
-More detail on each of these steps is below.
+请详细阅读以下信息，以更多了解每一步走的细节。
 
-### What is a development environment?
+### 什么是开发环境（Development Environment）
 
-Storm has two modes of operation: local mode and remote mode. In local mode, you can develop and test topologies completely in process on your local machine. In remote mode, you submit topologies for execution on a cluster of machines.
+Storm 有两种操作模式：本机模式和远程模式。在本机模式下，你可以完全在你的本机上开发和测试你的 topology；而在远程模式下，有必须将你的 topology 提交到一个机器的集群，等待执行。
 
-A Storm development environment has everything installed so that you can develop and test Storm topologies in local mode, package topologies for execution on a remote cluster, and submit/kill topologies on a remote cluster.
+Storm 开发环境包括安装所有需要的系统使得用户可以在本机模式下开发和测试 topology，能够将 topology 打包，并能远程提交／终止 topology 的运行。
 
-Let's quickly go over the relationship between your machine and a remote cluster. A Storm cluster is managed by a master node called "Nimbus". Your machine communicates with Nimbus to submit code (packaged as a jar) and topologies for execution on the cluster, and Nimbus will take care of distributing that code around the cluster and assigning workers to run your topology. Your machine uses a command line client called `storm` to communicate with Nimbus. The `storm` client is only used for remote mode; it is not used for developing and testing topologies in local mode.
+我们可以迅速的了解一下你的本机和远程集群之间的关系。Storm 集群都是由一个叫做 "Nimbus" 的节点来进行管理。用户的本机通过和 Nimbus 通信来提交代码（打包为 jar）和 topology，然后由 Nimbus 来将这些工作分配给集群中的 workers 执行。用户在本机上调用 `storm` 的命令和 Nimbus 通信。该 `storm` 客户端仅在远程模式下使用，而不能用于本机模式下 topology 的开发和测试。
 
-### Installing a Storm release locally
+### 本机安装 Storm 发布
 
-If you want to be able to submit topologies to a remote cluster from your machine, you should install a Storm release locally. Installing a Storm release will give you the `storm` client that you can use to interact with remote clusters. To install Storm locally, download a release [from here](https://github.com/apache/incubator-storm/downloads) and unzip it somewhere on your computer. Then add the unpacked `bin/` directory onto your `PATH` and make sure the `bin/storm` script is executable.
+如果用户希望能够从本机向远程集群提交 topology，用户必须在本机安装一个 Storm 的发布版本。该安装会给用户 `storm` 客户端程序，用户可以通过这个客户端程序和远程集群交互。用户可以从［这里］(https://github.com/apache/incubator-storm/downloads) 下载，解包到本地机器上，然后将解包的目录下 `bin/` 子目录放到 `PATH` 环境变量中即可（最好确认 `bin/storm` 文件是可执行的）。
 
-Installing a Storm release locally is only for interacting with remote clusters. For developing and testing topologies in local mode, it is recommended that you use Maven to include Storm as a dev dependency for your project. You can read more about using Maven for this purpose on [Maven](Maven.html). 
+在本机安装 Storm 发布只是提供用户和远程集群的交互能力。对于本机的开发以及测试，我们推荐使用 Maven 并将 Storm 作为你的项目（project）的一个 dependency。用户可以到 [Maven](Maven.html) 阅读更多关于 Maven 的细节。 
 
-### Starting and stopping topologies on a remote cluster
+### 远程集群启动和停止 topology
 
-The previous step installed the `storm` client on your machine which is used to communicate with remote Storm clusters. Now all you have to do is tell the client which Storm cluster to talk to. To do this, all you have to do is put the host address of the master in the `~/.storm/storm.yaml` file. It should look something like this:
+先前的步骤仅仅是在本机安装 `storm` 客户端以便于建立本机到远程集群的通讯。然后你需要配置客户端，使得它可以和指定的 Storm 集群通讯。你只需要将 master 的地址加入到 `~/.storm/storm.yaml` 文件中即可。比如：
 
 ```
 nimbus.host: "123.45.678.890"
 ```
 
-Alternatively, if you use the [storm-deploy](https://github.com/nathanmarz/storm-deploy) project to provision Storm clusters on AWS, it will automatically set up your ~/.storm/storm.yaml file. You can manually attach to a Storm cluster (or switch between multiple clusters) using the "attach" command, like so:
+或者，如果你使用 [storm-deploy](https://github.com/nathanmarz/storm-deploy) 项目 在 AWS 上管理你的 Storm 集群，你可以使用 `attach` 命令，手动指定 Storm 集群，也可以在多个集群间转换。
 
 ```
 lein run :deploy --attach --name mystormcluster
 ```
-
-More information is on the storm-deploy [wiki](https://github.com/nathanmarz/storm-deploy/wiki)
+更多信息请参阅 Storm 发布 [wiki](https://github.com/nathanmarz/storm-deploy/wiki)
